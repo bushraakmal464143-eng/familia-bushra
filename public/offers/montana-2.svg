@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#bae6fd"/>
+  <path d="M0 470 L260 210 L540 470 Z" fill="#6b7280"/>
+  <path d="M320 470 L640 170 L980 470 Z" fill="#4b5563"/>
+  <path d="M760 470 L940 260 L1200 470 Z" fill="#374151"/>
+  <rect y="470" width="1200" height="230" fill="#15803d"/>
+  <rect x="120" y="410" width="160" height="110" fill="#a16207"/>
+  <polygon points="100,420 200,340 300,420" fill="#78350f"/>
+  <text x="66" y="94" font-family="Arial, sans-serif" font-size="56" font-weight="700" fill="#14532d">Escapada en Espana</text>
+</svg>

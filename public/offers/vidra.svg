@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Camping Vidra">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#65a30d"/>
+      <stop offset="100%" stop-color="#166534"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#sky)"/>
+  <circle cx="980" cy="120" r="58" fill="#fde047"/>
+  <path d="M0 420 L250 230 L450 420 Z" fill="#64748b"/>
+  <path d="M220 420 L520 180 L820 420 Z" fill="#475569"/>
+  <path d="M580 420 L860 220 L1200 420 Z" fill="#334155"/>
+  <rect y="420" width="1200" height="280" fill="url(#ground)"/>
+  <rect x="760" y="360" width="220" height="150" rx="8" fill="#ca8a04"/>
+  <polygon points="740,370 870,280 1000,370" fill="#78350f"/>
+  <rect x="840" y="430" width="52" height="80" fill="#fef3c7"/>
+  <text x="58" y="92" font-family="Arial, sans-serif" font-size="52" font-weight="700" fill="#14532d">
+    Camping Vidra - Bungalow 30 EUR/pers
+  </text>
+</svg>

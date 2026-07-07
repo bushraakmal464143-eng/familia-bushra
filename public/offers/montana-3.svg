@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#c7d2fe"/>
+  <circle cx="1040" cy="126" r="52" fill="#fde047"/>
+  <path d="M0 480 L220 260 L470 480 Z" fill="#94a3b8"/>
+  <path d="M280 480 L570 170 L860 480 Z" fill="#64748b"/>
+  <path d="M710 480 L940 230 L1200 480 Z" fill="#475569"/>
+  <rect y="480" width="1200" height="220" fill="#166534"/>
+  <text x="62" y="96" font-family="Arial, sans-serif" font-size="56" font-weight="700" fill="#14532d">Camping familiar</text>
+</svg>

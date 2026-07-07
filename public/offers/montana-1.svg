@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#bfdbfe"/>
+  <circle cx="980" cy="120" r="60" fill="#facc15"/>
+  <path d="M0 460 L300 190 L560 460 Z" fill="#64748b"/>
+  <path d="M360 460 L680 150 L1030 460 Z" fill="#475569"/>
+  <rect y="460" width="1200" height="240" fill="#166534"/>
+  <text x="70" y="100" font-family="Arial, sans-serif" font-size="56" font-weight="700" fill="#14532d">Oferta de montana</text>
+</svg>

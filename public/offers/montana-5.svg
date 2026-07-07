@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#ddd6fe"/>
+  <circle cx="980" cy="118" r="54" fill="#f59e0b"/>
+  <path d="M0 475 L260 220 L520 475 Z" fill="#94a3b8"/>
+  <path d="M350 475 L660 160 L960 475 Z" fill="#64748b"/>
+  <path d="M780 475 L970 250 L1200 475 Z" fill="#475569"/>
+  <rect y="475" width="1200" height="225" fill="#166534"/>
+  <text x="64" y="96" font-family="Arial, sans-serif" font-size="56" font-weight="700" fill="#14532d">Oferta wellness</text>
+</svg>
