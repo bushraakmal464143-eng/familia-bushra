@@ -25,7 +25,7 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
     return { sent: false, error: "SMTP not configured" };
   }
 
-  const subject = "Restablece tu contraseña — OfertasdeCamping.com";
+  const subject = "Restablece tu contraseña — OfertasdeCampingyHoteles.com";
   const text = [
     "Hola,",
     "",
@@ -36,7 +36,7 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
     "",
     "El enlace caduca en 1 hora. Si no solicitaste este cambio, ignora este correo.",
     "",
-    "OfertasdeCamping.com",
+    "OfertasdeCampingyHoteles.com",
   ].join("\n");
 
   try {

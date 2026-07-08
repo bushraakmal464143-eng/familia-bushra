@@ -12,7 +12,7 @@ export function defaultSiteSettings(): SiteSettings {
     siteTagline: SITE_TAGLINE,
     logoPart1: "Ofertas",
     logoAccent: "de",
-    logoPart2: "Camping",
+    logoPart2: "CampingyHoteles",
     logoSuffix: ".com",
     heroTitle: "Las mejores ofertas de campings por tiempo limitado",
     heroSubtitle: `Encuentra tu parcela perfecta en España con ${SITE_NAME}.`,
@@ -30,6 +30,7 @@ function normalizeSiteName(name: string): string {
   const lower = name.trim().toLowerCase();
   if (
     lower === "ofertasdecamping.com" ||
+    lower === "ofertasdecampingyhoteles.com" ||
     lower === "campolibre" ||
     lower === "ofertas de camping.com"
   ) {

@@ -26,6 +26,8 @@ async function start() {
   // Routes depend on DB mode (mongo vs json fallback), so load them after `connectDb()`.
   const cuentaRoutes = require("./routes/cuenta");
   app.use("/api/cuenta", cuentaRoutes);
+  const campingRoutes = require("../routes/camping");
+  app.use("/api/camping", campingRoutes);
 
   app.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);

@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   try {
     const res = await fetch(url.toString(), {
       headers: {
-        "User-Agent": "OfertasdeCamping-Admin/1.0",
+        "User-Agent": "OfertasdeCampingyHoteles-Admin/1.0",
         Accept: "application/json",
       },
       next: { revalidate: 0 },
