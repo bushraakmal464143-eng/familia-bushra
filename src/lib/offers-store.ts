@@ -4,7 +4,12 @@ import { readJson, writeJson } from "@/lib/json-store";
 import { getCampings } from "@/lib/campings-store";
 import { campingIdByOfferIndex } from "@/lib/seed-data";
 import { revalidateOfferPages } from "@/lib/revalidate-offers";
-import { resolveOfferSetting, resolvePetFriendly, resolveGlamping } from "@/lib/search-offers";
+import {
+  resolveOfferSetting,
+  resolvePetFriendly,
+  resolveGlamping,
+  resolveHotel,
+} from "@/lib/search-offers";
 import type { OfferRecord, OfferStatus } from "@/lib/types";
 import { sanitizeOfferAccommodations } from "@/lib/offer-accommodation-units";
 import { parseMapCoordinate } from "@/lib/offer-map";
@@ -73,6 +78,7 @@ function migrateLegacyOffer(
       typeof raw.petFriendly === "boolean" ? raw.petFriendly : undefined,
     isGlamping:
       typeof raw.isGlamping === "boolean" ? raw.isGlamping : undefined,
+    isHotel: typeof raw.isHotel === "boolean" ? raw.isHotel : undefined,
     status: (raw.status as OfferStatus) ?? "active",
     featured: Boolean(raw.featured),
   };
@@ -82,6 +88,7 @@ function migrateLegacyOffer(
     setting: base.setting ?? resolveOfferSetting(base),
     petFriendly: base.petFriendly ?? resolvePetFriendly(base),
     isGlamping: base.isGlamping ?? resolveGlamping(base),
+    isHotel: base.isHotel ?? resolveHotel(base),
   };
 }
 

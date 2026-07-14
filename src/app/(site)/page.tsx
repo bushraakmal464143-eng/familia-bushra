@@ -21,6 +21,9 @@ const popularSearches = [
   { href: "/playa", label: "Campings de playa", icon: "🏖️" },
   { href: "/perros", label: "Campings con perros", icon: "🐕" },
   { href: "/glamping", label: "Glampings", icon: "⛺" },
+  { href: "/hoteles-playa", label: "Hoteles de playa", icon: "🏨" },
+  { href: "/hoteles-montana", label: "Hoteles de montaña", icon: "🏔️" },
+  { href: "/hoteles-perros", label: "Hoteles que admiten perros", icon: "🐶" },
 ];
 
 const features = [
@@ -92,17 +95,6 @@ export default async function HomePage({
               <SearchForm target="home" initialDestino={destino} />
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="border-b border-gray-100 bg-brand-cream py-6">
-        <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-6 px-4 sm:gap-10">
-          <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <span className="text-brand-accent" aria-hidden>
-              ✓
-            </span>
-            {settings.trustPoint}
-          </span>
         </div>
       </section>
 

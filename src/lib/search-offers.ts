@@ -13,6 +13,7 @@ const BEACH_KEYWORDS = [
 
 const PET_KEYWORDS = ["mascota", "mascotas", "perro", "perros", "pet"];
 const GLAMPING_KEYWORDS = ["glamping", "glamp"];
+const HOTEL_KEYWORDS = ["hotel", "hoteles", "resort", "hostal"];
 
 const ANY_DESTINATION = "cualquier destino disponible";
 
@@ -59,6 +60,11 @@ export function resolveGlamping(offer: OfferRecord): boolean {
   return GLAMPING_KEYWORDS.some((keyword) => offerSearchText(offer).includes(keyword));
 }
 
+export function resolveHotel(offer: OfferRecord): boolean {
+  if (typeof offer.isHotel === "boolean") return offer.isHotel;
+  return HOTEL_KEYWORDS.some((keyword) => offerSearchText(offer).includes(keyword));
+}
+
 export function filterOffersBySetting(
   offers: OfferRecord[],
   setting: OfferSetting
@@ -72,6 +78,21 @@ export function filterPetFriendlyOffers(offers: OfferRecord[]): OfferRecord[] {
 
 export function filterGlampingOffers(offers: OfferRecord[]): OfferRecord[] {
   return offers.filter((offer) => resolveGlamping(offer));
+}
+
+export function filterHotelOffers(offers: OfferRecord[]): OfferRecord[] {
+  return offers.filter((offer) => resolveHotel(offer));
+}
+
+export function filterHotelOffersBySetting(
+  offers: OfferRecord[],
+  setting: OfferSetting
+): OfferRecord[] {
+  return filterOffersBySetting(filterHotelOffers(offers), setting);
+}
+
+export function filterPetFriendlyHotelOffers(offers: OfferRecord[]): OfferRecord[] {
+  return filterPetFriendlyOffers(filterHotelOffers(offers));
 }
 
 export function filterOffersByDestination(

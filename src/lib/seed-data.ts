@@ -132,4 +132,7 @@ export const campingIdByOfferIndex = [
   "camp_9",
   "camp_8",
   "camp_3",
+  "camp_8",
+  "camp_2",
+  "camp_3",
 ] as const;

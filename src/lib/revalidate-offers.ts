@@ -6,6 +6,9 @@ export function revalidateOfferPages(offerId?: string) {
   revalidatePath("/playa");
   revalidatePath("/perros");
   revalidatePath("/glamping");
+  revalidatePath("/hoteles-playa");
+  revalidatePath("/hoteles-montana");
+  revalidatePath("/hoteles-perros");
   revalidatePath("/admin/offers");
   revalidatePath("/camping/ofertas");
 

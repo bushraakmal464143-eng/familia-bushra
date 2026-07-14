@@ -7,7 +7,15 @@ import { es } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
 import { isAnyDestination } from "@/lib/search-offers";
 
-export type SearchFormTarget = "home" | "campings" | "playa" | "perros" | "glamping";
+export type SearchFormTarget =
+  | "home"
+  | "campings"
+  | "playa"
+  | "perros"
+  | "glamping"
+  | "hoteles-playa"
+  | "hoteles-montana"
+  | "hoteles-perros";
 
 type SearchFormProps = {
   target?: SearchFormTarget;
@@ -118,6 +126,9 @@ export default function SearchForm({
       playa: "/playa",
       perros: "/perros",
       glamping: "/glamping",
+      "hoteles-playa": "/hoteles-playa",
+      "hoteles-montana": "/hoteles-montana",
+      "hoteles-perros": "/hoteles-perros",
     };
     const base = baseByTarget[target];
     const url = query

@@ -212,6 +212,64 @@ export const defaultOffers = [
     setting: "mountain",
     isGlamping: true,
   },
+  {
+    id: "11",
+    title: "Hotel boutique frente al mar en la Costa Brava",
+    subtitle: "Hotel Mar de Calas",
+    location: "Lloret de Mar",
+    region: "Girona, Costa Brava",
+    mealPlan: "Desayuno incluido",
+    highlights: ["Vistas al Mediterráneo", "Piscina infinity", "Spa"],
+    description:
+      "Hotel de playa con habitaciones luminosas, terraza panorámica y acceso a la cala. Ideal para escapadas junto al mar.",
+    travelDates: "Disponible todo el verano 2026",
+    priceFrom: 89,
+    image:
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+    badge: "Hotel de playa",
+    category: "new",
+    setting: "beach",
+    isHotel: true,
+  },
+  {
+    id: "12",
+    title: "Hotel de montaña con vistas a los Pirineos",
+    subtitle: "Hotel Valle Nevado",
+    location: "Benasque",
+    region: "Huesca, Pirineos",
+    mealPlan: "Media pensión",
+    highlights: ["Chimenea en salón", "Rutas de senderismo", "Sauna"],
+    description:
+      "Hotel acogedor en plena montaña, perfecto para desconectar entre picos y bosques. Habitaciones con vistas al valle.",
+    travelDates: "Válido del 1 jun al 30 oct 2026",
+    priceFrom: 75,
+    image:
+      "https://images.unsplash.com/photo-1520250497591-112f2f542a28?auto=format&fit=crop&w=1200&q=80",
+    badge: "Hotel de montaña",
+    category: "bestseller",
+    setting: "mountain",
+    isHotel: true,
+  },
+  {
+    id: "13",
+    title: "Hotel pet friendly cerca de la Sierra Nevada",
+    subtitle: "Hotel Canino Sierra",
+    location: "Granada",
+    region: "Andalucía, Sierra Nevada",
+    mealPlan: "Desayuno incluido",
+    highlights: ["Admite perros", "Zona canina", "Habitaciones pet friendly"],
+    description:
+      "Hotel que admite perros con camas para mascotas, zona de paseo y personal acostumbrado a viajeros con perro.",
+    travelDates: "Disponible todo el año 2026",
+    priceFrom: 68,
+    image:
+      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
+    badge: "Pet friendly",
+    category: "new",
+    setting: "mountain",
+    petFriendly: true,
+    isHotel: true,
+  },
 ];
 
 export function filterOffers(

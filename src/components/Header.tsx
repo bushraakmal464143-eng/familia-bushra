@@ -13,6 +13,9 @@ const navLinks = [
   { href: "/playa", label: "Campings de playa" },
   { href: "/perros", label: "Campings con perros" },
   { href: "/glamping", label: "Glampings" },
+  { href: "/hoteles-playa", label: "Hoteles de playa" },
+  { href: "/hoteles-montana", label: "Hoteles de montaña" },
+  { href: "/hoteles-perros", label: "Hoteles que admiten perros" },
 ];
 
 type HeaderProps = {
@@ -65,10 +68,10 @@ export default function Header({ branding, customer }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
       {isLoggedIn && customer && (
-        <div className="hidden border-b border-brand-accent/20 bg-orange-50 sm:block">
-          <div className="mx-auto max-w-7xl px-4 py-2 text-sm text-gray-800 sm:px-6 lg:px-8">
+        <div className="hidden w-full border-b border-brand-accent/20 bg-orange-50 sm:block">
+          <div className="w-full px-4 py-2 text-sm text-gray-800 sm:px-6 lg:px-8">
             Bienvenido,{" "}
             <span className="font-semibold text-brand-accent">
               {customerFirstName(customer.name)}
@@ -77,7 +80,7 @@ export default function Header({ branding, customer }: HeaderProps) {
         </div>
       )}
 
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
+      <div className="flex w-full items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="min-w-0 shrink transition opacity-90 hover:opacity-100"
@@ -85,18 +88,6 @@ export default function Header({ branding, customer }: HeaderProps) {
         >
           <Logo branding={branding} />
         </Link>
-
-        <nav className="hidden items-center gap-6 lg:flex" aria-label="Principal">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-gray-700 transition hover:text-brand-accent"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
@@ -157,8 +148,27 @@ export default function Header({ branding, customer }: HeaderProps) {
       </div>
 
       <nav
+        className="hidden w-full border-t border-gray-100 bg-white lg:block"
+        aria-label="Principal"
+      >
+        <div className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 lg:px-8">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm font-medium text-gray-700 transition hover:text-brand-accent"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </nav>
+
+      <nav
         id="mobile-menu"
-        className={`${isMenuOpen ? "flex" : "hidden"} max-h-[calc(100dvh-4rem)] flex-col gap-1 overflow-y-auto border-t border-gray-100 px-4 py-3 lg:hidden`}
+        className={`${
+          isMenuOpen ? "fixed inset-0 top-[4.25rem] z-40 flex" : "hidden"
+        } h-[calc(100dvh-4.25rem)] w-full flex-col gap-1 overflow-y-auto border-t border-gray-100 bg-white px-4 py-4 lg:hidden`}
         aria-label="Móvil"
       >
         {isLoggedIn && customer && (
@@ -173,7 +183,7 @@ export default function Header({ branding, customer }: HeaderProps) {
           <Link
             key={link.href}
             href={link.href}
-            className="rounded-md px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-50 hover:text-brand-accent"
+            className="rounded-md px-3 py-3 text-base text-gray-700 transition hover:bg-gray-50 hover:text-brand-accent"
             onClick={closeMenu}
           >
             {link.label}
@@ -181,7 +191,7 @@ export default function Header({ branding, customer }: HeaderProps) {
         ))}
         <Link
           href="/camping/login"
-          className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 hover:text-brand-accent"
+          className="rounded-md px-3 py-3 text-base font-medium text-gray-700 transition hover:bg-gray-50 hover:text-brand-accent"
           onClick={closeMenu}
         >
           Espacio campings
@@ -190,7 +200,7 @@ export default function Header({ branding, customer }: HeaderProps) {
           <>
             <Link
               href="/cuenta"
-              className="rounded-md px-3 py-2 text-sm font-medium text-brand-forest transition hover:bg-gray-50"
+              className="rounded-md px-3 py-3 text-base font-medium text-brand-forest transition hover:bg-gray-50"
               onClick={closeMenu}
             >
               Mis reservas
@@ -199,7 +209,7 @@ export default function Header({ branding, customer }: HeaderProps) {
               type="button"
               onClick={handleLogout}
               disabled={loggingOut}
-              className="rounded-md px-3 py-2 text-left text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-60"
+              className="rounded-md px-3 py-3 text-left text-base font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-60"
             >
               {loggingOut ? "Saliendo…" : "Salir"}
             </button>
@@ -208,14 +218,14 @@ export default function Header({ branding, customer }: HeaderProps) {
           <>
             <Link
               href="/signup"
-              className="rounded-md px-3 py-2 text-sm font-medium text-brand-accent transition hover:bg-orange-50"
+              className="rounded-md px-3 py-3 text-base font-medium text-brand-accent transition hover:bg-orange-50"
               onClick={closeMenu}
             >
               Registrarse
             </Link>
             <Link
               href={loginHref}
-              className="rounded-md bg-brand-green px-3 py-2 text-sm font-medium text-white transition hover:bg-brand-forest"
+              className="rounded-md bg-brand-green px-3 py-3 text-base font-medium text-white transition hover:bg-brand-forest"
               onClick={closeMenu}
             >
               Iniciar sesión

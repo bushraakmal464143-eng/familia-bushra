@@ -100,6 +100,7 @@ export type OfferRecord = {
   setting?: OfferSetting;
   petFriendly?: boolean;
   isGlamping?: boolean;
+  isHotel?: boolean;
   status: OfferStatus;
   featured?: boolean;
 };

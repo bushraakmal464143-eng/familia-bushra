@@ -11,6 +11,9 @@ const footerSections = [
       { href: "/playa", label: "Campings de playa" },
       { href: "/perros", label: "Campings con perros" },
       { href: "/glamping", label: "Glampings" },
+      { href: "/hoteles-playa", label: "Hoteles de playa" },
+      { href: "/hoteles-montana", label: "Hoteles de montaña" },
+      { href: "/hoteles-perros", label: "Hoteles que admiten perros" },
     ],
   },
   {

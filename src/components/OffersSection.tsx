@@ -17,7 +17,7 @@ type OffersSectionProps = {
 
 export default function OffersSection({
   initialOffers,
-  heading = "Ofertas de campings de montaña",
+  heading = "Ofertas de campings y hoteles",
   id,
 }: OffersSectionProps) {
   const [activeTab, setActiveTab] = useState<OfferCategory | "all">("all");
