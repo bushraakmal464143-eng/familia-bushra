@@ -6,6 +6,10 @@ import {
   upsertOffer,
 } from "@/lib/offers-store";
 import { getCampingById } from "@/lib/campings-store";
+import {
+  inferDisplayPagesFromFlags,
+  sanitizeDisplayPages,
+} from "@/lib/offer-display-pages";
 import { getSessionSubject } from "@/lib/role-session";
 import type { OfferRecord } from "@/lib/types";
 
@@ -33,6 +37,23 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as Partial<OfferRecord>;
   const existing = await getOffers();
+  const setting =
+    body.setting === "beach" || body.setting === "mountain"
+      ? body.setting
+      : undefined;
+  const petFriendly =
+    typeof body.petFriendly === "boolean" ? body.petFriendly : undefined;
+  const isGlamping =
+    typeof body.isGlamping === "boolean" ? body.isGlamping : undefined;
+  const displayPages =
+    sanitizeDisplayPages(body.displayPages) ??
+    inferDisplayPagesFromFlags({
+      setting,
+      petFriendly,
+      isGlamping,
+      isHotel: false,
+    });
+
   const offer: OfferRecord = {
     id: generateOfferId(existing),
     campingId,
@@ -49,6 +70,12 @@ export async function POST(request: Request) {
     gallery: body.gallery,
     badge: body.badge?.trim() || undefined,
     category: body.category ?? "new",
+    setting,
+    petFriendly,
+    isGlamping,
+    displayPages,
+    // Portal-created offers are campings, not hotels.
+    isHotel: false,
     status: body.status ?? "active",
     featured: false,
   };

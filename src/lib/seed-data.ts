@@ -90,7 +90,7 @@ export const defaultCampings: Omit<Camping, "passwordHash">[] = [
     region: "Girona, Costa Brava",
     description: "Bungalows familiares junto al Mediterráneo.",
     photos: [
-      "https://images.unsplash.com/photo-1519046904214-96b29bb1ca8b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=1200&q=80",
     ],
     status: "active",
     createdAt: "2026-03-20T10:00:00.000Z",
@@ -103,7 +103,7 @@ export const defaultCampings: Omit<Camping, "passwordHash">[] = [
     region: "Murcia, Costa Cálida",
     description: "Glamping frente al mar en la Costa Cálida.",
     photos: [
-      "https://images.unsplash.com/photo-1473496163314-62a4b58ea781?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=1200&q=80",
     ],
     status: "active",
     createdAt: "2026-04-01T10:00:00.000Z",

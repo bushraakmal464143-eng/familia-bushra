@@ -2,6 +2,14 @@ import type { OfferCategory } from "@/lib/offers";
 
 export type OfferStatus = "active" | "draft" | "inactive";
 export type OfferSetting = "mountain" | "beach";
+export type OfferDisplayPage =
+  | "campings"
+  | "playa"
+  | "perros"
+  | "glamping"
+  | "hoteles-playa"
+  | "hoteles-montana"
+  | "hoteles-perros";
 export type CampingStatus = "pending" | "active" | "suspended";
 export type BookingStatus = "pending" | "paid" | "cancelled";
 
@@ -97,6 +105,8 @@ export type OfferRecord = {
   mapLat?: number;
   mapLng?: number;
   category: Exclude<OfferCategory, "all">;
+  /** Explicit category pages where this offer should appear. */
+  displayPages?: OfferDisplayPage[];
   setting?: OfferSetting;
   petFriendly?: boolean;
   isGlamping?: boolean;

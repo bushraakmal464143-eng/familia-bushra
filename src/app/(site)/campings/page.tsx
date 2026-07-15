@@ -5,8 +5,8 @@ import OffersSection from "@/components/OffersSection";
 import SearchForm from "@/components/SearchForm";
 import { getPublicOffers } from "@/lib/offers-store";
 import {
+  filterCampingOffersBySetting,
   filterOffersByDestination,
-  filterOffersBySetting,
   hasActiveSearch,
   isAnyDestination,
   normalizeDestination,
@@ -44,7 +44,7 @@ export default async function CampingsMontanaPage({ searchParams }: Props) {
   ]);
 
   const destino = normalizeDestination(params.destino);
-  const mountainOffers = filterOffersBySetting(allOffers, "mountain");
+  const mountainOffers = filterCampingOffersBySetting(allOffers, "mountain");
   const offers = filterOffersByDestination(mountainOffers, destino);
   const searching = hasActiveSearch(params);
   const adults = Number(params.adultos) || 2;

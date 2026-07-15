@@ -1,20 +1,22 @@
 import Link from "next/link";
 import { getPartnerContacts } from "@/lib/partner-contacts-store";
+import { getCustomers } from "@/lib/customers-store";
 import { getAdminStats } from "@/lib/stats";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default async function AdminDashboardPage() {
-  const [stats, partnerContacts] = await Promise.all([
+  const [stats, partnerContacts, customers] = await Promise.all([
     getAdminStats(),
     getPartnerContacts(),
+    getCustomers(),
   ]);
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900">Mi panel — Operaciones</h1>
       <p className="mt-1 text-gray-600">
-        Visión global de campings, ofertas y ventas de la plataforma.
+        Visión global de campings, clientes, ofertas y ventas de la plataforma.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -27,6 +29,12 @@ export default async function AdminDashboardPage() {
         <StatCard label="Campings totales" value={stats.totalCampings} href="/admin/campings" />
         <StatCard label="Campings activos" value={stats.campingsByStatus.active} accent="green" />
         <StatCard label="Pendientes de alta" value={stats.campingsByStatus.pending} accent="orange" />
+        <StatCard
+          label="Clientes registrados"
+          value={customers.length}
+          href="/admin/clientes"
+          accent="green"
+        />
         <StatCard label="Ofertas activas" value={stats.activeOffersCount} href="/admin/offers" />
         <StatCard label="Reservas pagadas" value={stats.paidBookings} />
         <StatCard label="Ingresos totales" value={`${stats.totalRevenue} €`} />

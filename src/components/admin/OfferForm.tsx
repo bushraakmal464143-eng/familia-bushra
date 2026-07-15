@@ -9,8 +9,18 @@ import OfferAccommodationsEditor, {
 import MapLocationPicker from "@/components/admin/MapLocationPicker";
 import { MAX_OFFER_IMAGES } from "@/lib/image-upload-limits";
 import { sanitizeOfferAccommodations } from "@/lib/offer-accommodation-units";
+import {
+  flagsFromDisplayPages,
+  inferDisplayPagesFromFlags,
+  OFFER_DISPLAY_PAGES,
+} from "@/lib/offer-display-pages";
 import type { OfferCategory } from "@/lib/offers";
-import type { OfferAccommodationUnit, OfferRecord, OfferStatus } from "@/lib/types";
+import type {
+  OfferAccommodationUnit,
+  OfferDisplayPage,
+  OfferRecord,
+  OfferStatus,
+} from "@/lib/types";
 
 const categories: { value: Exclude<OfferCategory, "all">; label: string }[] = [
   { value: "new", label: "Novedades" },
@@ -96,6 +106,17 @@ export default function OfferForm({ offer, mode, campings }: OfferFormProps) {
   const [category, setCategory] = useState(
     offer?.category ?? "new"
   );
+  const [displayPages, setDisplayPages] = useState<OfferDisplayPage[]>(() => {
+    if (offer?.displayPages && offer.displayPages.length > 0) {
+      return offer.displayPages;
+    }
+    return inferDisplayPagesFromFlags({
+      setting: offer?.setting,
+      petFriendly: offer?.petFriendly,
+      isGlamping: offer?.isGlamping,
+      isHotel: offer?.isHotel,
+    });
+  });
   const [status, setStatus] = useState<OfferStatus>(offer?.status ?? "active");
   const [featured, setFeatured] = useState(offer?.featured ?? false);
   const [accommodations, setAccommodations] = useState<OfferAccommodationUnit[]>(
@@ -167,10 +188,18 @@ export default function OfferForm({ offer, mode, campings }: OfferFormProps) {
       return;
     }
 
+    if (displayPages.length === 0) {
+      setSaving(false);
+      setError("Elige al menos una página donde mostrar esta oferta.");
+      return;
+    }
+
     const sanitizedAccommodations = sanitizeOfferAccommodations(accommodations, {
       priceFrom: Number(priceFrom) || 0,
       image: mainImage,
     });
+
+    const pageFlags = flagsFromDisplayPages(displayPages);
 
     const payload = {
       title,
@@ -197,6 +226,11 @@ export default function OfferForm({ offer, mode, campings }: OfferFormProps) {
       mapLng: parsedMapLng,
       campingId,
       category,
+      displayPages,
+      setting: pageFlags.setting,
+      isHotel: pageFlags.isHotel,
+      petFriendly: pageFlags.petFriendly,
+      isGlamping: pageFlags.isGlamping,
       status,
       featured,
     };
@@ -323,6 +357,38 @@ export default function OfferForm({ offer, mode, campings }: OfferFormProps) {
               </option>
             ))}
           </select>
+        </div>
+        <div className="sm:col-span-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <p className={labelClass}>Mostrar en estas páginas</p>
+          <p className="mt-1 text-xs text-gray-500">
+            La home muestra todas las ofertas activas. Elige en qué páginas de
+            categoría debe aparecer esta oferta.
+          </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {OFFER_DISPLAY_PAGES.map((page) => {
+              const checked = displayPages.includes(page.id);
+              return (
+                <label
+                  key={page.id}
+                  className="flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm text-gray-700 shadow-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => {
+                      setDisplayPages((prev) =>
+                        checked
+                          ? prev.filter((id) => id !== page.id)
+                          : [...prev, page.id]
+                      );
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 text-brand-green focus:ring-brand-green"
+                  />
+                  {page.label}
+                </label>
+              );
+            })}
+          </div>
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass}>

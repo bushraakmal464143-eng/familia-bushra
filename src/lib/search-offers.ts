@@ -1,4 +1,5 @@
-import type { OfferRecord, OfferSetting } from "@/lib/types";
+import type { OfferDisplayPage, OfferRecord, OfferSetting } from "@/lib/types";
+import { offerShowsOnPage } from "@/lib/offer-display-pages";
 
 const BEACH_KEYWORDS = [
   "playa",
@@ -65,6 +66,18 @@ export function resolveHotel(offer: OfferRecord): boolean {
   return HOTEL_KEYWORDS.some((keyword) => offerSearchText(offer).includes(keyword));
 }
 
+function filterByPage(
+  offers: OfferRecord[],
+  page: OfferDisplayPage
+): OfferRecord[] {
+  return offers.filter((offer) => offerShowsOnPage(offer, page));
+}
+
+/** Campings / glampings — not hotels. Home page still shows everything. */
+export function filterCampingOffers(offers: OfferRecord[]): OfferRecord[] {
+  return offers.filter((offer) => !resolveHotel(offer));
+}
+
 export function filterOffersBySetting(
   offers: OfferRecord[],
   setting: OfferSetting
@@ -72,12 +85,24 @@ export function filterOffersBySetting(
   return offers.filter((offer) => resolveOfferSetting(offer) === setting);
 }
 
+/** Mountain / beach camping pages (excludes hotels). */
+export function filterCampingOffersBySetting(
+  offers: OfferRecord[],
+  setting: OfferSetting
+): OfferRecord[] {
+  return filterByPage(
+    offers,
+    setting === "beach" ? "playa" : "campings"
+  );
+}
+
+/** /perros — pet-friendly campings only (not hotels). */
 export function filterPetFriendlyOffers(offers: OfferRecord[]): OfferRecord[] {
-  return offers.filter((offer) => resolvePetFriendly(offer));
+  return filterByPage(offers, "perros");
 }
 
 export function filterGlampingOffers(offers: OfferRecord[]): OfferRecord[] {
-  return offers.filter((offer) => resolveGlamping(offer));
+  return filterByPage(offers, "glamping");
 }
 
 export function filterHotelOffers(offers: OfferRecord[]): OfferRecord[] {
@@ -88,11 +113,14 @@ export function filterHotelOffersBySetting(
   offers: OfferRecord[],
   setting: OfferSetting
 ): OfferRecord[] {
-  return filterOffersBySetting(filterHotelOffers(offers), setting);
+  return filterByPage(
+    offers,
+    setting === "beach" ? "hoteles-playa" : "hoteles-montana"
+  );
 }
 
 export function filterPetFriendlyHotelOffers(offers: OfferRecord[]): OfferRecord[] {
-  return filterPetFriendlyOffers(filterHotelOffers(offers));
+  return filterByPage(offers, "hoteles-perros");
 }
 
 export function filterOffersByDestination(

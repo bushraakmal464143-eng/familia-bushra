@@ -152,7 +152,7 @@ export const defaultOffers = [
     travelDates: "Disponible todo el verano 2026",
     priceFrom: 42,
     image:
-      "https://images.unsplash.com/photo-1519046904214-96b29bb1ca8b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=1200&q=80",
     category: "new",
     setting: "beach",
   },
@@ -169,7 +169,7 @@ export const defaultOffers = [
     travelDates: "Válido del 15 may al 15 oct 2026",
     priceFrom: 79,
     image:
-      "https://images.unsplash.com/photo-1473496163314-62a4b58ea781?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=1200&q=80",
     badge: "Oferta de playa",
     category: "new",
     setting: "beach",
@@ -206,7 +206,7 @@ export const defaultOffers = [
     travelDates: "Válido del 1 jun al 30 sep 2026",
     priceFrom: 95,
     image:
-      "https://images.unsplash.com/photo-1520250497591-112f2f542a28?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=1200&q=80",
     badge: "Glamping premium",
     category: "bestseller",
     setting: "mountain",
@@ -244,7 +244,7 @@ export const defaultOffers = [
     travelDates: "Válido del 1 jun al 30 oct 2026",
     priceFrom: 75,
     image:
-      "https://images.unsplash.com/photo-1520250497591-112f2f542a28?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1200&q=80",
     badge: "Hotel de montaña",
     category: "bestseller",
     setting: "mountain",

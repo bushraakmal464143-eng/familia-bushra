@@ -5,6 +5,10 @@ import { getCampings } from "@/lib/campings-store";
 import { campingIdByOfferIndex } from "@/lib/seed-data";
 import { revalidateOfferPages } from "@/lib/revalidate-offers";
 import {
+  inferDisplayPagesFromFlags,
+  sanitizeDisplayPages,
+} from "@/lib/offer-display-pages";
+import {
   resolveOfferSetting,
   resolvePetFriendly,
   resolveGlamping,
@@ -70,6 +74,7 @@ function migrateLegacyOffer(
     mapLat: parseMapCoordinate(raw.mapLat, "lat"),
     mapLng: parseMapCoordinate(raw.mapLng, "lng"),
     category: safeCategory,
+    displayPages: sanitizeDisplayPages(raw.displayPages),
     setting:
       raw.setting === "beach" || raw.setting === "mountain"
         ? raw.setting
@@ -83,12 +88,18 @@ function migrateLegacyOffer(
     featured: Boolean(raw.featured),
   };
 
-  return {
+  const withFlags = {
     ...base,
     setting: base.setting ?? resolveOfferSetting(base),
     petFriendly: base.petFriendly ?? resolvePetFriendly(base),
     isGlamping: base.isGlamping ?? resolveGlamping(base),
     isHotel: base.isHotel ?? resolveHotel(base),
+  };
+
+  return {
+    ...withFlags,
+    displayPages:
+      withFlags.displayPages ?? inferDisplayPagesFromFlags(withFlags),
   };
 }
 

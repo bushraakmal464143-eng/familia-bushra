@@ -6,7 +6,7 @@ import type { SearchQuery } from "@/lib/search-offers";
 export const dynamic = "force-dynamic";
 
 const GLAMPING_HERO_IMAGE =
-  "https://images.unsplash.com/photo-1520250497591-112f2f542a28?auto=format&fit=crop&w=1920&q=80";
+  "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=1920&q=80";
 
 export const metadata = {
   title: `Glampings en España | ${SITE_NAME}`,

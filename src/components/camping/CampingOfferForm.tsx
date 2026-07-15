@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ImageUploadField from "@/components/ImageUploadField";
-import type { OfferRecord } from "@/lib/types";
+import { inferDisplayPagesFromFlags } from "@/lib/offer-display-pages";
+import type { OfferRecord, OfferSetting } from "@/lib/types";
 
 type CampingOfferFormProps = {
   offer?: OfferRecord;
@@ -22,11 +23,22 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
   const [image, setImage] = useState(offer?.image ?? photos[0] ?? "/offers/cabin-style.png");
   const [status, setStatus] = useState(offer?.status ?? "active");
   const [category] = useState(offer?.category ?? "new");
+  const [setting, setSetting] = useState<OfferSetting>(
+    offer?.setting === "beach" ? "beach" : "mountain"
+  );
+  const [petFriendly, setPetFriendly] = useState(offer?.petFriendly ?? false);
+  const [isGlamping, setIsGlamping] = useState(offer?.isGlamping ?? false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    const displayPages = inferDisplayPagesFromFlags({
+      setting,
+      petFriendly,
+      isGlamping,
+      isHotel: false,
+    });
     const payload = {
       title,
       description,
@@ -35,6 +47,11 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
       image,
       status,
       category,
+      setting,
+      isHotel: false,
+      petFriendly,
+      isGlamping,
+      displayPages,
       highlights: offer?.highlights ?? [],
       subtitle: offer?.subtitle ?? title,
       location: offer?.location,
@@ -84,6 +101,37 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
             <option value="inactive">Inactiva</option>
           </select>
         </div>
+        <div>
+          <label className="text-sm font-medium text-gray-700">Entorno / página</label>
+          <select
+            className={inputClass}
+            value={setting}
+            onChange={(e) => setSetting(e.target.value as OfferSetting)}
+          >
+            <option value="mountain">Campings de montaña</option>
+            <option value="beach">Campings de playa</option>
+          </select>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-x-6 gap-y-2">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={petFriendly}
+            onChange={(e) => setPetFriendly(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-brand-green focus:ring-brand-green"
+          />
+          También en Campings con perros
+        </label>
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={isGlamping}
+            onChange={(e) => setIsGlamping(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-brand-green focus:ring-brand-green"
+          />
+          También en Glampings
+        </label>
       </div>
       <div>
         <label className="text-sm font-medium text-gray-700">Fechas / disponibilidad</label>

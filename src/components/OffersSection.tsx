@@ -13,12 +13,15 @@ type OffersSectionProps = {
   initialOffers: OfferRecord[];
   heading?: string;
   id?: string;
+  /** Keep given order (e.g. interleaved mix on home). */
+  mixOrder?: boolean;
 };
 
 export default function OffersSection({
   initialOffers,
   heading = "Ofertas de campings y hoteles",
   id,
+  mixOrder = false,
 }: OffersSectionProps) {
   const [activeTab, setActiveTab] = useState<OfferCategory | "all">("all");
 
@@ -27,8 +30,12 @@ export default function OffersSection({
     [initialOffers, activeTab]
   );
 
-  const featured = filtered.find((o) => o.featured) ?? filtered[0];
-  const rest = filtered.filter((o) => o.id !== featured?.id);
+  const featured = mixOrder
+    ? undefined
+    : filtered.find((o) => o.featured) ?? filtered[0];
+  const rest = featured
+    ? filtered.filter((o) => o.id !== featured.id)
+    : filtered;
 
   return (
     <section

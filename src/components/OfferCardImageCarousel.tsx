@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import CarouselNavButton from "@/components/CarouselNavButton";
+
+const FALLBACK_IMAGE = "/offers/montana-1.svg";
 
 type OfferCardImageCarouselProps = {
   images: string[];
@@ -18,22 +20,34 @@ export default function OfferCardImageCarousel({
   const safeImages = useMemo(() => {
     const cleaned = images.map((s) => s.trim()).filter(Boolean);
     const unique = cleaned.filter((src, idx) => cleaned.indexOf(src) === idx);
-    return unique.length ? unique.slice(0, 5) : ["/offers/montana-1.svg"];
+    return unique.length ? unique.slice(0, 5) : [FALLBACK_IMAGE];
   }, [images]);
 
   const [active, setActive] = useState(0);
+  const [failed, setFailed] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setActive(0);
+    setFailed({});
+  }, [safeImages]);
+
+  const visibleImages = useMemo(() => {
+    const kept = safeImages.filter((src) => !failed[src]);
+    return kept.length > 0 ? kept : [FALLBACK_IMAGE];
+  }, [safeImages, failed]);
 
   const go = useCallback(
     (delta: number) => {
       setActive((prev) => {
-        const next = (prev + delta) % safeImages.length;
-        return next < 0 ? next + safeImages.length : next;
+        const next = (prev + delta) % visibleImages.length;
+        return next < 0 ? next + visibleImages.length : next;
       });
     },
-    [safeImages.length]
+    [visibleImages.length]
   );
 
-  const main = safeImages[active] ?? safeImages[0];
+  const main =
+    visibleImages[Math.min(active, visibleImages.length - 1)] ?? FALLBACK_IMAGE;
 
   const sizes = featured
     ? "(max-width: 1024px) 100vw, 42vw"
@@ -47,9 +61,14 @@ export default function OfferCardImageCarousel({
         fill
         className="object-cover"
         sizes={sizes}
+        onError={() => {
+          if (main === FALLBACK_IMAGE) return;
+          setFailed((prev) => ({ ...prev, [main]: true }));
+          setActive(0);
+        }}
       />
 
-      {safeImages.length > 1 && (
+      {visibleImages.length > 1 && (
         <>
           <CarouselNavButton
             direction="prev"
@@ -71,11 +90,11 @@ export default function OfferCardImageCarousel({
           />
 
           <div className="absolute bottom-2 right-2 rounded-full border border-white/20 bg-black/55 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white backdrop-blur-sm">
-            {active + 1}/{safeImages.length}
+            {Math.min(active, visibleImages.length - 1) + 1}/
+            {visibleImages.length}
           </div>
         </>
       )}
     </div>
   );
 }
-

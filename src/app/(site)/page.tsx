@@ -10,6 +10,7 @@ import {
   normalizeDestination,
   type SearchQuery,
 } from "@/lib/search-offers";
+import { interleaveOffersByKind } from "@/lib/offer-display-pages";
 import { getSiteSettings } from "@/lib/site-settings-store";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -51,9 +52,12 @@ export default async function HomePage({
       (!isAnyDestination(destino) && destino) ||
       params.adultos
   );
-  const offers = searching
+  const filteredOffers = searching
     ? filterOffersByDestination(allOffers, destino)
     : allOffers;
+  const offers = searching
+    ? filteredOffers
+    : interleaveOffersByKind(filteredOffers);
 
   function formatSearchDate(value: string | undefined): string {
     if (!value) return "";
@@ -118,12 +122,13 @@ export default async function HomePage({
       <OffersSection
         id="ofertas"
         initialOffers={offers}
+        mixOrder={!searching}
         heading={
           searching
             ? offers.length > 0
               ? "Ofertas encontradas"
               : "Sin resultados"
-            : settings.offersHeading
+            : "Ofertas de campings y hoteles"
         }
       />
 

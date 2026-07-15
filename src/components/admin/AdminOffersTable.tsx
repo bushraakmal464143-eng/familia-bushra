@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import DeleteOfferButton from "@/components/admin/DeleteOfferButton";
+import { OFFER_DISPLAY_PAGES } from "@/lib/offer-display-pages";
 import { offerTabs } from "@/lib/offers";
 import type { OfferRecord } from "@/lib/types";
 
@@ -17,6 +18,10 @@ type OfferFilter =
 
 const categoryLabel = Object.fromEntries(
   offerTabs.filter((t) => t.id !== "all").map((t) => [t.id, t.label])
+);
+
+const pageLabel = Object.fromEntries(
+  OFFER_DISPLAY_PAGES.map((p) => [p.id, p.label])
 );
 
 function settingLabel(setting: OfferRecord["setting"]) {
@@ -97,7 +102,7 @@ export default function AdminOffersTable({ offers }: { offers: OfferRecord[] }) 
             <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-4 py-3">Oferta</th>
-                <th className="px-4 py-3">Tipo</th>
+                <th className="px-4 py-3">Páginas</th>
                 <th className="px-4 py-3">Categoría</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Precio</th>
@@ -135,18 +140,40 @@ export default function AdminOffersTable({ offers }: { offers: OfferRecord[] }) 
                   </td>
                   <td className="px-4 py-3 text-gray-700">
                     <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">
-                        {settingLabel(offer.setting)}
-                      </span>
-                      {offer.petFriendly && (
-                        <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
-                          Perros
-                        </span>
-                      )}
-                      {offer.isGlamping && (
-                        <span className="rounded-full bg-indigo-50 px-2 py-1 text-xs text-indigo-700">
-                          Glamping
-                        </span>
+                      {(offer.displayPages ?? []).length > 0 ? (
+                        offer.displayPages!.map((page) => (
+                          <span
+                            key={page}
+                            className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700"
+                          >
+                            {pageLabel[page] ?? page}
+                          </span>
+                        ))
+                      ) : (
+                        <>
+                          <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">
+                            {settingLabel(offer.setting)}
+                          </span>
+                          {offer.isHotel ? (
+                            <span className="rounded-full bg-sky-50 px-2 py-1 text-xs text-sky-700">
+                              Hotel
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-lime-50 px-2 py-1 text-xs text-lime-800">
+                              Camping
+                            </span>
+                          )}
+                          {offer.petFriendly && (
+                            <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
+                              Perros
+                            </span>
+                          )}
+                          {offer.isGlamping && (
+                            <span className="rounded-full bg-indigo-50 px-2 py-1 text-xs text-indigo-700">
+                              Glamping
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   </td>

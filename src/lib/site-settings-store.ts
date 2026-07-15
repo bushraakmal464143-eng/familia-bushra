@@ -14,7 +14,7 @@ export function defaultSiteSettings(): SiteSettings {
     logoAccent: "de",
     logoPart2: "CampingyHoteles",
     logoSuffix: ".com",
-    heroTitle: "Las mejores ofertas de campings por tiempo limitado",
+    heroTitle: "Las mejores ofertas de campings y hoteles por tiempo limitado",
     heroSubtitle: `Encuentra tu alojamiento perfecto en España con ${SITE_NAME}.`,
     heroImageUrl: HERO_IMAGE,
     offersHeading: "Ofertas de campings y hoteles",

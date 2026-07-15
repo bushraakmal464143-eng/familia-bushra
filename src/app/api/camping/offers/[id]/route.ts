@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { deleteOffer, getOfferById, upsertOffer } from "@/lib/offers-store";
+import {
+  inferDisplayPagesFromFlags,
+  sanitizeDisplayPages,
+} from "@/lib/offer-display-pages";
 import { getSessionSubject } from "@/lib/role-session";
 import type { OfferRecord } from "@/lib/types";
 
@@ -16,6 +20,27 @@ export async function PUT(request: Request, context: Ctx) {
     return NextResponse.json({ error: "No encontrada" }, { status: 404 });
   }
   const body = (await request.json()) as Partial<OfferRecord>;
+  const setting =
+    body.setting === "beach" || body.setting === "mountain"
+      ? body.setting
+      : current.setting;
+  const petFriendly =
+    typeof body.petFriendly === "boolean"
+      ? body.petFriendly
+      : current.petFriendly;
+  const isGlamping =
+    typeof body.isGlamping === "boolean"
+      ? body.isGlamping
+      : current.isGlamping;
+  const displayPages =
+    sanitizeDisplayPages(body.displayPages) ??
+    inferDisplayPagesFromFlags({
+      setting,
+      petFriendly,
+      isGlamping,
+      isHotel: false,
+    });
+
   const offer: OfferRecord = {
     ...current,
     ...body,
@@ -23,6 +48,12 @@ export async function PUT(request: Request, context: Ctx) {
     campingId,
     featured: false,
     priceFrom: Number(body.priceFrom ?? current.priceFrom),
+    setting,
+    petFriendly,
+    isGlamping,
+    displayPages,
+    // Never allow camping portal to mark an offer as a hotel.
+    isHotel: false,
   };
   await upsertOffer(offer);
   return NextResponse.json(offer);

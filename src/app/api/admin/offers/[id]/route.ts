@@ -3,6 +3,10 @@ import { deleteOffer, getOfferById, upsertOffer } from "@/lib/offers-store";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { MAX_GALLERY_IMAGES } from "@/lib/image-upload-limits";
 import { sanitizeOfferAccommodations } from "@/lib/offer-accommodation-units";
+import {
+  flagsFromDisplayPages,
+  sanitizeDisplayPages,
+} from "@/lib/offer-display-pages";
 import { parseMapCoordinate } from "@/lib/offer-map";
 import type { OfferRecord } from "@/lib/types";
 
@@ -71,6 +75,12 @@ export async function PUT(request: Request, context: RouteContext) {
       ? parseMapCoordinate(body.mapLng, "lng")
       : current.mapLng;
 
+  const displayPages =
+    body.displayPages !== undefined
+      ? sanitizeDisplayPages(body.displayPages)
+      : current.displayPages;
+  const pageFlags = displayPages ? flagsFromDisplayPages(displayPages) : null;
+
   const offer: OfferRecord = {
     ...current,
     ...body,
@@ -90,6 +100,27 @@ export async function PUT(request: Request, context: RouteContext) {
         : current.mapLabel,
     mapLat,
     mapLng,
+    displayPages,
+    setting:
+      pageFlags?.setting ??
+      (body.setting === "beach" || body.setting === "mountain"
+        ? body.setting
+        : body.setting === null
+          ? undefined
+          : current.setting),
+    petFriendly:
+      pageFlags?.petFriendly ??
+      (typeof body.petFriendly === "boolean"
+        ? body.petFriendly
+        : current.petFriendly),
+    isGlamping:
+      pageFlags?.isGlamping ??
+      (typeof body.isGlamping === "boolean"
+        ? body.isGlamping
+        : current.isGlamping),
+    isHotel:
+      pageFlags?.isHotel ??
+      (typeof body.isHotel === "boolean" ? body.isHotel : current.isHotel),
     featured:
       body.featured !== undefined ? Boolean(body.featured) : current.featured,
   };

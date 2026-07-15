@@ -1,5 +1,5 @@
 import CategoryCampingsPage from "@/components/CategoryCampingsPage";
-import { filterOffersBySetting } from "@/lib/search-offers";
+import { filterCampingOffersBySetting } from "@/lib/search-offers";
 import { SITE_NAME } from "@/lib/site";
 import type { SearchQuery } from "@/lib/search-offers";
 
@@ -22,7 +22,7 @@ export default function CampingsPlayaPage({ searchParams }: Props) {
   return (
     <CategoryCampingsPage
       searchParams={searchParams}
-      filterOffers={(offers) => filterOffersBySetting(offers, "beach")}
+      filterOffers={(offers) => filterCampingOffersBySetting(offers, "beach")}
       config={{
         heroImage: BEACH_HERO_IMAGE,
         heroAlt: "Camping junto al mar",

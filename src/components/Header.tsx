@@ -71,7 +71,7 @@ export default function Header({ branding, customer }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
       {isLoggedIn && customer && (
         <div className="hidden w-full border-b border-brand-accent/20 bg-orange-50 sm:block">
-          <div className="w-full px-4 py-2 text-sm text-gray-800 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-2 text-sm text-gray-800 sm:px-6 lg:px-8">
             Bienvenido,{" "}
             <span className="font-semibold text-brand-accent">
               {customerFirstName(customer.name)}
@@ -80,7 +80,7 @@ export default function Header({ branding, customer }: HeaderProps) {
         </div>
       )}
 
-      <div className="flex w-full items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="min-w-0 shrink transition opacity-90 hover:opacity-100"
@@ -151,7 +151,7 @@ export default function Header({ branding, customer }: HeaderProps) {
         className="hidden w-full border-t border-gray-100 bg-white lg:block"
         aria-label="Principal"
       >
-        <div className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-5 gap-y-1.5 px-4 py-2.5 sm:px-6 lg:px-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
