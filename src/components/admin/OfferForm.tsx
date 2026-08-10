@@ -337,6 +337,7 @@ export default function OfferForm({ offer, mode, campings }: OfferFormProps) {
             value={status}
             onChange={(e) => setStatus(e.target.value as OfferStatus)}
           >
+            <option value="pending">Pendiente de aprobación</option>
             <option value="active">Activa</option>
             <option value="draft">Borrador</option>
             <option value="inactive">Inactiva</option>

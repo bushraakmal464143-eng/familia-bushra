@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ApproveOfferButton from "@/components/admin/ApproveOfferButton";
 import CampingStatusForm from "@/components/admin/CampingStatusForm";
 import {
   getBookings,
-  countPaidSales,
   sumPaidRevenue,
 } from "@/lib/bookings-store";
+import { isCampingProfileComplete } from "@/lib/camping-profile";
 import { getCampingById, stripCampingSecrets } from "@/lib/campings-store";
 import { getOffersByCamping } from "@/lib/offers-store";
 import { formatBookingStatus } from "@/lib/stats";
@@ -19,6 +20,7 @@ export default async function AdminCampingDetailPage({ params }: Props) {
   if (!camping) notFound();
 
   const safe = stripCampingSecrets(camping);
+  const profileComplete = isCampingProfileComplete(camping);
   const [offers, allBookings] = await Promise.all([
     getOffersByCamping(id),
     getBookings(),
@@ -26,6 +28,7 @@ export default async function AdminCampingDetailPage({ params }: Props) {
   const bookings = allBookings
     .filter((b) => b.campingId === id)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const pendingOffers = offers.filter((o) => o.status === "pending");
 
   return (
     <div>
@@ -33,14 +36,49 @@ export default async function AdminCampingDetailPage({ params }: Props) {
         ← Campings
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-gray-900">{safe.name}</h1>
-      <p className="text-gray-600">{safe.email} · {safe.location}, {safe.region}</p>
+      <p className="text-gray-600">
+        {safe.email} · {safe.location || "Sin localidad"}, {safe.region || "sin región"}
+      </p>
 
       <div className="mt-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
         <h2 className="font-semibold text-gray-900">Estado del camping</h2>
+        {!profileComplete && (
+          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            La ficha aún no está completa (faltan datos de contacto o ubicación).
+            Espera a que el camping complete su perfil antes de aprobar.
+          </p>
+        )}
+        {profileComplete && camping.status === "pending" && (
+          <p className="mt-2 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900">
+            Ficha completa. Puedes activar el camping para que pueda enviar ofertas.
+          </p>
+        )}
         <div className="mt-3">
           <CampingStatusForm campingId={id} currentStatus={camping.status} />
         </div>
       </div>
+
+      <section className="mt-8 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h2 className="font-semibold text-gray-900">Datos de la ficha</h2>
+        <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+          <div>
+            <dt className="text-gray-500">Teléfono</dt>
+            <dd className="font-medium text-gray-900">{safe.phone || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-gray-500">Ficha completa</dt>
+            <dd className="font-medium text-gray-900">
+              {profileComplete ? "Sí" : "No"}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-gray-500">Descripción</dt>
+            <dd className="mt-1 whitespace-pre-wrap text-gray-800">
+              {safe.description || "—"}
+            </dd>
+          </div>
+        </dl>
+      </section>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border bg-white p-4 shadow-sm">
@@ -50,8 +88,8 @@ export default async function AdminCampingDetailPage({ params }: Props) {
           </p>
         </div>
         <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Ventas pagadas</p>
-          <p className="text-2xl font-bold text-brand-accent">{countPaidSales(bookings)}</p>
+          <p className="text-sm text-gray-500">Ofertas por aprobar</p>
+          <p className="text-2xl font-bold text-brand-accent">{pendingOffers.length}</p>
         </div>
         <div className="rounded-xl border bg-white p-4 shadow-sm">
           <p className="text-sm text-gray-500">Ingresos</p>
@@ -82,11 +120,35 @@ export default async function AdminCampingDetailPage({ params }: Props) {
         <h2 className="font-bold text-gray-900">Ofertas ({offers.length})</h2>
         <ul className="mt-4 space-y-2">
           {offers.map((o) => (
-            <li key={o.id} className="flex justify-between rounded-lg border bg-white px-4 py-3 text-sm">
-              <span>{o.title}</span>
-              <span className="text-gray-500">{o.status} · {o.priceFrom} €</span>
+            <li
+              key={o.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-white px-4 py-3 text-sm"
+            >
+              <div>
+                <span className="font-medium text-gray-900">{o.title}</span>
+                <span className="ml-2 text-gray-500">
+                  {o.status} · {o.priceFrom} €
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                {o.status === "pending" && (
+                  <>
+                    <ApproveOfferButton offerId={o.id} />
+                    <ApproveOfferButton offerId={o.id} reject />
+                  </>
+                )}
+                <Link
+                  href={`/admin/offers/${o.id}/edit`}
+                  className="font-medium text-brand-forest hover:underline"
+                >
+                  Editar
+                </Link>
+              </div>
             </li>
           ))}
+          {offers.length === 0 && (
+            <li className="text-sm text-gray-500">Sin ofertas todavía.</li>
+          )}
         </ul>
       </section>
 

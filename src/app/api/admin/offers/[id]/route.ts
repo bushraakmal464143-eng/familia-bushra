@@ -30,6 +30,30 @@ export async function GET(_request: Request, context: RouteContext) {
   return NextResponse.json(offer);
 }
 
+export async function PATCH(request: Request, context: RouteContext) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+  const { id } = await context.params;
+  const current = await getOfferById(id);
+  if (!current) {
+    return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+  }
+
+  const body = (await request.json()) as { status?: OfferRecord["status"] };
+  if (
+    body.status !== "pending" &&
+    body.status !== "active" &&
+    body.status !== "draft" &&
+    body.status !== "inactive"
+  ) {
+    return NextResponse.json({ error: "Estado no válido" }, { status: 400 });
+  }
+
+  const offer: OfferRecord = { ...current, status: body.status };
+  await upsertOffer(offer);
+  return NextResponse.json(offer);
+}
+
 export async function PUT(request: Request, context: RouteContext) {
   const denied = await requireAdmin();
   if (denied) return denied;

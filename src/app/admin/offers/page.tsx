@@ -2,7 +2,30 @@ import Link from "next/link";
 import AdminOffersTable from "@/components/admin/AdminOffersTable";
 import { getOffers } from "@/lib/offers-store";
 
-export default async function AdminOffersPage() {
+type Props = {
+  searchParams: Promise<{ filter?: string }>;
+};
+
+const VALID_FILTERS = [
+  "all",
+  "pending",
+  "mountain",
+  "beach",
+  "dog",
+  "glamping",
+  "inactive",
+] as const;
+
+type OfferFilter = (typeof VALID_FILTERS)[number];
+
+export default async function AdminOffersPage({ searchParams }: Props) {
+  const { filter: rawFilter } = await searchParams;
+  const initialFilter: OfferFilter = VALID_FILTERS.includes(
+    rawFilter as OfferFilter
+  )
+    ? (rawFilter as OfferFilter)
+    : "all";
+
   const offers = await getOffers();
 
   return (
@@ -20,7 +43,7 @@ export default async function AdminOffersPage() {
         </Link>
       </div>
 
-      <AdminOffersTable offers={offers} />
+      <AdminOffersTable offers={offers} initialFilter={initialFilter} />
     </div>
   );
 }

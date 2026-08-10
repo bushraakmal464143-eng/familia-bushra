@@ -4,11 +4,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ImageUploadField from "@/components/ImageUploadField";
 import { inferDisplayPagesFromFlags } from "@/lib/offer-display-pages";
-import type { OfferRecord, OfferSetting } from "@/lib/types";
+import type { OfferRecord, OfferSetting, OfferStatus } from "@/lib/types";
 
 type CampingOfferFormProps = {
   offer?: OfferRecord;
   photos: string[];
+};
+
+const statusLabels: Record<"draft" | "pending", string> = {
+  draft: "Borrador (solo tú lo ves)",
+  pending: "Enviar para aprobación del admin",
 };
 
 export default function CampingOfferForm({ offer, photos }: CampingOfferFormProps) {
@@ -21,7 +26,9 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
   const [priceFrom, setPriceFrom] = useState(String(offer?.priceFrom ?? ""));
   const [travelDates, setTravelDates] = useState(offer?.travelDates ?? "");
   const [image, setImage] = useState(offer?.image ?? photos[0] ?? "/offers/cabin-style.png");
-  const [status, setStatus] = useState(offer?.status ?? "active");
+  const [status, setStatus] = useState<"draft" | "pending">(
+    offer?.status === "draft" ? "draft" : "pending"
+  );
   const [category] = useState(offer?.category ?? "new");
   const [setting, setSetting] = useState<OfferSetting>(
     offer?.setting === "beach" ? "beach" : "mountain"
@@ -45,7 +52,7 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
       priceFrom: Number(priceFrom),
       travelDates,
       image,
-      status,
+      status: status as OfferStatus,
       category,
       setting,
       isHotel: false,
@@ -80,6 +87,10 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <p className="text-sm text-red-600">{error}</p>}
+      <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-900">
+        Las ofertas no se publican automáticamente. Un administrador debe
+        aprobarlas antes de que aparezcan en la web.
+      </p>
       <div>
         <label className="text-sm font-medium text-gray-700">Título de la oferta</label>
         <input className={inputClass} value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -94,11 +105,14 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
           <input type="number" min="1" className={inputClass} value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} required />
         </div>
         <div>
-          <label className="text-sm font-medium text-gray-700">Estado</label>
-          <select className={inputClass} value={status} onChange={(e) => setStatus(e.target.value as OfferRecord["status"])}>
-            <option value="active">Activa</option>
-            <option value="draft">Borrador</option>
-            <option value="inactive">Inactiva</option>
+          <label className="text-sm font-medium text-gray-700">Acción</label>
+          <select
+            className={inputClass}
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "draft" | "pending")}
+          >
+            <option value="pending">{statusLabels.pending}</option>
+            <option value="draft">{statusLabels.draft}</option>
           </select>
         </div>
         <div>
@@ -156,7 +170,11 @@ export default function CampingOfferForm({ offer, photos }: CampingOfferFormProp
         </div>
       )}
       <button type="submit" disabled={saving} className="rounded-lg bg-brand-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-60">
-        {saving ? "Guardando…" : offer ? "Guardar" : "Publicar oferta"}
+        {saving
+          ? "Guardando…"
+          : status === "draft"
+            ? "Guardar borrador"
+            : "Enviar para aprobación"}
       </button>
     </form>
   );

@@ -27,8 +27,18 @@ export default async function AdminDashboardPage() {
           accent="orange"
         />
         <StatCard label="Campings totales" value={stats.totalCampings} href="/admin/campings" />
-        <StatCard label="Campings activos" value={stats.campingsByStatus.active} accent="green" />
-        <StatCard label="Pendientes de alta" value={stats.campingsByStatus.pending} accent="orange" />
+        <StatCard
+          label="Campings activos"
+          value={stats.campingsByStatus.active}
+          href="/admin/campings?status=active"
+          accent="green"
+        />
+        <StatCard
+          label="Pendientes de alta"
+          value={stats.campingsByStatus.pending}
+          href="/admin/campings?status=pending"
+          accent="orange"
+        />
         <StatCard
           label="Clientes registrados"
           value={customers.length}
@@ -36,6 +46,12 @@ export default async function AdminDashboardPage() {
           accent="green"
         />
         <StatCard label="Ofertas activas" value={stats.activeOffersCount} href="/admin/offers" />
+        <StatCard
+          label="Ofertas por aprobar"
+          value={stats.pendingOffersCount}
+          href="/admin/offers?filter=pending"
+          accent="orange"
+        />
         <StatCard label="Reservas pagadas" value={stats.paidBookings} />
         <StatCard label="Ingresos totales" value={`${stats.totalRevenue} €`} />
         <StatCard label="Todas las ofertas" value={stats.totalOffers} />
@@ -169,7 +185,13 @@ function StatCard({
   accent?: "green" | "orange";
 }) {
   const inner = (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+    <div
+      className={`rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition ${
+        href
+          ? "cursor-pointer hover:border-brand-accent/40 hover:shadow-md"
+          : "hover:shadow-md"
+      }`}
+    >
       <p className="text-sm text-gray-500">{label}</p>
       <p
         className={`mt-1 text-2xl font-bold ${
@@ -182,6 +204,9 @@ function StatCard({
       >
         {value}
       </p>
+      {href && (
+        <p className="mt-2 text-xs font-medium text-brand-accent">Ver listado →</p>
+      )}
     </div>
   );
   return href ? <Link href={href}>{inner}</Link> : inner;

@@ -1,4 +1,5 @@
 import { readJson, writeJson, generateId } from "@/lib/json-store";
+import { campingHasRequiredProfileFields } from "@/lib/camping-profile";
 import { hashPassword } from "@/lib/password";
 import { buildSeedCampings } from "@/lib/seed-data";
 import { revalidateOfferPages } from "@/lib/revalidate-offers";
@@ -6,8 +7,19 @@ import type { Camping, CampingStatus } from "@/lib/types";
 
 const FILE = "campings.json";
 
+function normalizeCamping(camping: Camping): Camping {
+  return {
+    ...camping,
+    profileComplete:
+      typeof camping.profileComplete === "boolean"
+        ? camping.profileComplete
+        : campingHasRequiredProfileFields(camping),
+  };
+}
+
 export async function getCampings(): Promise<Camping[]> {
-  return readJson(FILE, buildSeedCampings());
+  const campings = await readJson(FILE, buildSeedCampings());
+  return campings.map(normalizeCamping);
 }
 
 export async function saveCampings(campings: Camping[]): Promise<void> {
@@ -32,24 +44,37 @@ export async function registerCamping(data: {
   email: string;
   password: string;
   phone?: string;
-  location: string;
-  region: string;
-  description: string;
+  location?: string;
+  region?: string;
+  description?: string;
 }): Promise<Camping> {
   const campings = await getCampings();
   if (campings.some((c) => c.email.toLowerCase() === data.email.toLowerCase())) {
     throw new Error("EMAIL_EXISTS");
   }
+
+  const location = data.location?.trim() ?? "";
+  const region = data.region?.trim() ?? "";
+  const description = data.description?.trim() ?? "";
+  const phone = data.phone?.trim();
+
   const camping: Camping = {
     id: generateId("camp", campings),
     name: data.name.trim(),
     email: data.email.trim().toLowerCase(),
     passwordHash: hashPassword(data.password),
-    phone: data.phone?.trim(),
-    location: data.location.trim(),
-    region: data.region.trim(),
-    description: data.description.trim(),
+    phone,
+    location,
+    region,
+    description,
     photos: [],
+    profileComplete: campingHasRequiredProfileFields({
+      name: data.name,
+      location,
+      region,
+      description,
+      phone,
+    }),
     status: "pending",
     createdAt: new Date().toISOString(),
   };
@@ -70,6 +95,7 @@ export async function updateCamping(
       | "description"
       | "photos"
       | "status"
+      | "profileComplete"
     >
   >
 ): Promise<Camping | undefined> {

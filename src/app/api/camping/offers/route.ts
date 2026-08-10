@@ -11,7 +11,7 @@ import {
   sanitizeDisplayPages,
 } from "@/lib/offer-display-pages";
 import { getSessionSubject } from "@/lib/role-session";
-import type { OfferRecord } from "@/lib/types";
+import type { OfferRecord, OfferStatus } from "@/lib/types";
 
 export async function GET() {
   const campingId = await getSessionSubject("camping");
@@ -30,7 +30,16 @@ export async function POST(request: Request) {
   const camping = await getCampingById(campingId);
   if (!camping || camping.status !== "active") {
     return NextResponse.json(
-      { error: "Tu camping debe estar activo para publicar ofertas" },
+      {
+        error:
+          "Tu camping debe estar aprobado por un administrador antes de crear ofertas",
+      },
+      { status: 403 }
+    );
+  }
+  if (!camping.profileComplete) {
+    return NextResponse.json(
+      { error: "Completa la ficha del camping antes de crear ofertas" },
       { status: 403 }
     );
   }
@@ -54,6 +63,11 @@ export async function POST(request: Request) {
       isHotel: false,
     });
 
+  // Campsite owners can only save drafts or submit for admin approval.
+  const requestedStatus = body.status as OfferStatus | undefined;
+  const status: OfferStatus =
+    requestedStatus === "draft" ? "draft" : "pending";
+
   const offer: OfferRecord = {
     id: generateOfferId(existing),
     campingId,
@@ -74,9 +88,8 @@ export async function POST(request: Request) {
     petFriendly,
     isGlamping,
     displayPages,
-    // Portal-created offers are campings, not hotels.
     isHotel: false,
-    status: body.status ?? "active",
+    status,
     featured: false,
   };
 

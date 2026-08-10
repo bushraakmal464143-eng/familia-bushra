@@ -1,13 +1,34 @@
 import Image from "next/image";
 import Link from "next/link";
 import DeleteOfferButton from "@/components/admin/DeleteOfferButton";
+import { getCampingById } from "@/lib/campings-store";
 import { getOffersByCamping } from "@/lib/offers-store";
 import { getSessionSubject } from "@/lib/role-session";
+import type { OfferRecord } from "@/lib/types";
+
+function offerStatusLabel(status: OfferRecord["status"]) {
+  if (status === "active") return "Activa (publicada)";
+  if (status === "pending") return "Pendiente de aprobación";
+  if (status === "draft") return "Borrador";
+  return "Inactiva";
+}
+
+function offerStatusClass(status: OfferRecord["status"]) {
+  if (status === "active") return "text-brand-green";
+  if (status === "pending") return "text-brand-accent";
+  return "text-gray-500";
+}
 
 export default async function CampingOfertasPage() {
   const campingId = await getSessionSubject("camping");
   if (!campingId) return null;
-  const offers = await getOffersByCamping(campingId);
+  const [camping, offers] = await Promise.all([
+    getCampingById(campingId),
+    getOffersByCamping(campingId),
+  ]);
+  if (!camping) return null;
+
+  const canCreate = camping.status === "active";
 
   return (
     <div>
@@ -16,10 +37,26 @@ export default async function CampingOfertasPage() {
           <h1 className="text-2xl font-bold text-gray-900">Mis ofertas</h1>
           <p className="mt-1 text-gray-600">{offers.length} ofertas</p>
         </div>
-        <Link href="/camping/ofertas/nueva" className="rounded-lg bg-brand-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-700">
-          + Nueva oferta
-        </Link>
+        {canCreate ? (
+          <Link
+            href="/camping/ofertas/nueva"
+            className="rounded-lg bg-brand-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-700"
+          >
+            + Nueva oferta
+          </Link>
+        ) : (
+          <span className="rounded-lg bg-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-500">
+            + Nueva oferta
+          </span>
+        )}
       </div>
+
+      {!canCreate && (
+        <p className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Cuando un administrador apruebe tu camping podrás crear ofertas. Cada
+          oferta también necesitará aprobación antes de publicarse.
+        </p>
+      )}
 
       <div className="mt-8 space-y-4">
         {offers.map((offer) => (
@@ -31,17 +68,19 @@ export default async function CampingOfertasPage() {
               <h2 className="font-semibold text-gray-900">{offer.title}</h2>
               <p className="text-sm text-gray-500">
                 {offer.priceFrom} €/pers. ·{" "}
-                <span className={offer.status === "active" ? "text-brand-green" : "text-gray-500"}>
-                  {offer.status}
+                <span className={offerStatusClass(offer.status)}>
+                  {offerStatusLabel(offer.status)}
                 </span>
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-4">
-                <Link
-                  href={`/camping/ofertas/${offer.id}/editar`}
-                  className="text-sm font-medium text-brand-accent hover:underline"
-                >
-                  Editar
-                </Link>
+                {canCreate && (
+                  <Link
+                    href={`/camping/ofertas/${offer.id}/editar`}
+                    className="text-sm font-medium text-brand-accent hover:underline"
+                  >
+                    Editar
+                  </Link>
+                )}
                 <DeleteOfferButton
                   offerId={offer.id}
                   offerTitle={offer.title}
@@ -52,7 +91,10 @@ export default async function CampingOfertasPage() {
           </div>
         ))}
         {offers.length === 0 && (
-          <p className="text-center text-gray-500 py-12">Aún no tienes ofertas publicadas.</p>
+          <p className="py-12 text-center text-gray-500">
+            Aún no tienes ofertas. Cuando tu camping esté activo, envía una para
+            que el administrador la revise.
+          </p>
         )}
       </div>
     </div>

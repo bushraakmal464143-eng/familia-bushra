@@ -184,9 +184,13 @@ router.post("/register", async (req, res) => {
     const region = String(req.body?.region ?? "").trim();
     const description = String(req.body?.description ?? "").trim();
 
-    if (!name || !email || !password || !location || !region) {
+    if (!name || !email || !password) {
       return res.status(400).json({ error: "Faltan campos obligatorios" });
     }
+
+    const profileComplete = Boolean(
+      name && location && region && description && phone
+    );
 
     if (process.env.DB_MODE === "json") {
       const campings = await readCampingsJson();
@@ -204,6 +208,7 @@ router.post("/register", async (req, res) => {
         region,
         description,
         photos: [],
+        profileComplete,
         status: "pending",
         createdAt: new Date().toISOString(),
       };
@@ -213,7 +218,11 @@ router.post("/register", async (req, res) => {
 
       const token = createRoleToken("camping", camping.id);
       setRoleCookie(res, "camping", token);
-      return res.json({ ok: true, status: camping.status });
+      return res.json({
+        ok: true,
+        status: camping.status,
+        redirect: profileComplete ? "/camping" : "/camping/perfil",
+      });
     }
 
     const db = getDB();
@@ -234,6 +243,7 @@ router.post("/register", async (req, res) => {
       region,
       description,
       photos: [],
+      profileComplete,
       status: "pending",
       createdAt: new Date().toISOString(),
     };
@@ -243,7 +253,11 @@ router.post("/register", async (req, res) => {
     const token = createRoleToken("camping", camping.id);
     setRoleCookie(res, "camping", token);
 
-    res.json({ ok: true, status: camping.status });
+    res.json({
+      ok: true,
+      status: camping.status,
+      redirect: profileComplete ? "/camping" : "/camping/perfil",
+    });
   } catch (err) {
     console.error("Register camping error:", err);
     res.status(500).json({ error: "Error al registrar" });

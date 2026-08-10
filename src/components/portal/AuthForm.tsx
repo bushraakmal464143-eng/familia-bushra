@@ -5,6 +5,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import GoogleSignInButton from "@/components/portal/GoogleSignInButton";
 import LoginPageShell from "@/components/LoginPageShell";
+import PasswordInput from "@/components/PasswordInput";
 import {
   isStrongPassword,
   STRONG_PASSWORD_MESSAGE,
@@ -50,10 +51,6 @@ function AuthFormInner({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [location, setLocation] = useState("");
-  const [region, setRegion] = useState("");
-  const [description, setDescription] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,10 +71,6 @@ function AuthFormInner({
       if (fields === "register-customer") body.name = name;
       if (fields === "register-camping") {
         body.name = name;
-        body.phone = phone;
-        body.location = location;
-        body.region = region;
-        body.description = description;
       }
 
       const res = await fetch(apiPath, {
@@ -94,9 +87,17 @@ function AuthFormInner({
       }
 
       const data = (await res.json()) as { redirect?: string };
-      const destination =
-        data.redirect ??
-        (from.startsWith("/admin") ? "/admin" : from);
+      let destination = data.redirect;
+      if (!destination) {
+        if (apiPath.includes("/camping/")) {
+          destination =
+            fields === "register-camping" ? "/camping/perfil" : "/camping";
+        } else if (from.startsWith("/admin")) {
+          destination = "/admin";
+        } else {
+          destination = from;
+        }
+      }
       router.push(destination);
       router.refresh();
     } catch {
@@ -120,11 +121,18 @@ function AuthFormInner({
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {(fields === "register-camping" || fields === "register-customer") && (
             <div>
-              <label className="text-sm font-medium text-gray-700">Nombre</label>
+              <label className="text-sm font-medium text-gray-700">
+                {fields === "register-camping" ? "Nombre del camping" : "Nombre"}
+              </label>
               <input
                 className={inputClass}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder={
+                  fields === "register-camping"
+                    ? "Ej. Camping Valle Verde"
+                    : undefined
+                }
                 required
               />
             </div>
@@ -140,9 +148,8 @@ function AuthFormInner({
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Contraseña</label>
-            <input
-              type="password"
+            <PasswordInput
+              label="Contraseña"
               className={inputClass}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -165,24 +172,10 @@ function AuthFormInner({
           </div>
 
           {fields === "register-camping" && (
-            <>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Teléfono</label>
-                <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Localidad</label>
-                <input className={inputClass} value={location} onChange={(e) => setLocation(e.target.value)} required />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Región</label>
-                <input className={inputClass} value={region} onChange={(e) => setRegion(e.target.value)} required />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Descripción</label>
-                <textarea className={`${inputClass} min-h-[80px]`} value={description} onChange={(e) => setDescription(e.target.value)} />
-              </div>
-            </>
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              Tras registrarte completarás la ficha del camping. Un administrador
+              revisará tu alta antes de que puedas publicar ofertas.
+            </p>
           )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -196,7 +189,9 @@ function AuthFormInner({
               ? "Espera…"
               : fields === "login"
                 ? "Entrar"
-                : "Crear cuenta"}
+                : fields === "register-camping"
+                  ? "Crear cuenta de camping"
+                  : "Crear cuenta"}
           </button>
         </form>
 

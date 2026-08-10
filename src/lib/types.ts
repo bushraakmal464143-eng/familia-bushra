@@ -1,6 +1,6 @@
 import type { OfferCategory } from "@/lib/offers";
 
-export type OfferStatus = "active" | "draft" | "inactive";
+export type OfferStatus = "pending" | "active" | "draft" | "inactive";
 export type OfferSetting = "mountain" | "beach";
 export type OfferDisplayPage =
   | "campings"
@@ -35,6 +35,8 @@ export type Camping = {
   region: string;
   description: string;
   photos: string[];
+  /** Owner finished the profile form so admin can review the application. */
+  profileComplete: boolean;
   status: CampingStatus;
   createdAt: string;
 };

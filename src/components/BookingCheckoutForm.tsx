@@ -189,7 +189,8 @@ export default function BookingCheckoutForm({
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900"
+                  placeholder="Ej. María"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
                   autoComplete="given-name"
                 />
               </label>
@@ -199,7 +200,8 @@ export default function BookingCheckoutForm({
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900"
+                  placeholder="Ej. García López"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
                   autoComplete="family-name"
                 />
               </label>
@@ -226,7 +228,8 @@ export default function BookingCheckoutForm({
                 type="text"
                 value={documentId}
                 onChange={(e) => setDocumentId(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900"
+                placeholder="DNI, NIE o pasaporte"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
                 autoComplete="off"
               />
             </label>
@@ -237,7 +240,8 @@ export default function BookingCheckoutForm({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900"
+                placeholder="ejemplo@email.com"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
                 autoComplete="email"
               />
             </label>
@@ -249,6 +253,7 @@ export default function BookingCheckoutForm({
                   value={phoneCountryCode}
                   onChange={(e) => setPhoneCountryCode(e.target.value)}
                   className="w-28 shrink-0 rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-900"
+                  aria-label="Código de país"
                 >
                   {PHONE_CODES.map((p) => (
                     <option key={p.code} value={p.code}>
@@ -260,7 +265,8 @@ export default function BookingCheckoutForm({
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-900"
+                  placeholder="612 345 678"
+                  className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
                   autoComplete="tel-national"
                 />
               </div>

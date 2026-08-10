@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import LoginPageShell from "@/components/LoginPageShell";
+import PasswordInput from "@/components/PasswordInput";
 import {
   isStrongPassword,
   STRONG_PASSWORD_MESSAGE,
@@ -99,9 +100,8 @@ function ResetPasswordForm() {
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">Nueva contraseña</label>
-            <input
-              type="password"
+            <PasswordInput
+              label="Nueva contraseña"
               className={inputClass}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -111,9 +111,8 @@ function ResetPasswordForm() {
             <p className="mt-1 text-xs text-gray-500">{STRONG_PASSWORD_MESSAGE}</p>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Confirmar contraseña</label>
-            <input
-              type="password"
+            <PasswordInput
+              label="Confirmar contraseña"
               className={inputClass}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

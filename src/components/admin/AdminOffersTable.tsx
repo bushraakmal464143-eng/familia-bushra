@@ -4,12 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import DeleteOfferButton from "@/components/admin/DeleteOfferButton";
+import ApproveOfferButton from "@/components/admin/ApproveOfferButton";
 import { OFFER_DISPLAY_PAGES } from "@/lib/offer-display-pages";
 import { offerTabs } from "@/lib/offers";
 import type { OfferRecord } from "@/lib/types";
 
 type OfferFilter =
   | "all"
+  | "pending"
   | "mountain"
   | "beach"
   | "dog"
@@ -30,15 +32,36 @@ function settingLabel(setting: OfferRecord["setting"]) {
   return "—";
 }
 
-export default function AdminOffersTable({ offers }: { offers: OfferRecord[] }) {
+function statusLabel(status: OfferRecord["status"]) {
+  if (status === "active") return "Activa";
+  if (status === "pending") return "Pendiente";
+  if (status === "draft") return "Borrador";
+  return "Inactiva";
+}
+
+function statusClass(status: OfferRecord["status"]) {
+  if (status === "active") return "bg-emerald-50 text-emerald-700";
+  if (status === "pending") return "bg-orange-50 text-brand-accent";
+  if (status === "draft") return "bg-sky-50 text-sky-700";
+  return "bg-amber-50 text-amber-700";
+}
+
+export default function AdminOffersTable({
+  offers,
+  initialFilter = "all",
+}: {
+  offers: OfferRecord[];
+  initialFilter?: OfferFilter;
+}) {
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<OfferFilter>("all");
+  const [filter, setFilter] = useState<OfferFilter>(initialFilter);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return offers
       .filter((o) => {
         if (filter === "all") return true;
+        if (filter === "pending") return o.status === "pending";
         if (filter === "mountain") return o.setting === "mountain";
         if (filter === "beach") return o.setting === "beach";
         if (filter === "dog") return Boolean(o.petFriendly);
@@ -82,11 +105,12 @@ export default function AdminOffersTable({ offers }: { offers: OfferRecord[] }) 
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-green focus:outline-none focus:ring-1 focus:ring-brand-green sm:w-auto"
             >
               <option value="all">Todas las ofertas</option>
+              <option value="pending">Pendientes de aprobación</option>
               <option value="beach">Playa</option>
               <option value="mountain">Montaña</option>
               <option value="dog">Dog-friendly</option>
               <option value="glamping">Glamping</option>
-              <option value="inactive">Inactivas</option>
+              <option value="inactive">Inactivas / borrador</option>
             </select>
           </div>
         </div>
@@ -182,13 +206,11 @@ export default function AdminOffersTable({ offers }: { offers: OfferRecord[] }) 
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                        offer.status === "active"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${statusClass(
+                        offer.status
+                      )}`}
                     >
-                      {offer.status === "active" ? "Activa" : "Inactiva"}
+                      {statusLabel(offer.status)}
                     </span>
                   </td>
                   <td className="px-4 py-3 font-medium">
@@ -196,6 +218,12 @@ export default function AdminOffersTable({ offers }: { offers: OfferRecord[] }) 
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-3">
+                      {offer.status === "pending" && (
+                        <>
+                          <ApproveOfferButton offerId={offer.id} />
+                          <ApproveOfferButton offerId={offer.id} reject />
+                        </>
+                      )}
                       <Link
                         href={`/admin/offers/${offer.id}/edit`}
                         className="text-sm font-medium text-brand-forest hover:underline"

@@ -8,6 +8,7 @@ export const metadata = {
 
 const nav = [
   { href: "/camping", label: "Inicio", exact: true },
+  { href: "/camping/perfil", label: "Mi ficha" },
   { href: "/camping/fotos", label: "Fotos" },
   { href: "/camping/ofertas", label: "Ofertas" },
   { href: "/camping/ventas", label: "Ventas" },

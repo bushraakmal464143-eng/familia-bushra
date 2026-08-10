@@ -48,6 +48,7 @@ export async function getAdminStats() {
     totalCampings: campings.length,
     campingsByStatus: byStatus,
     activeOffersCount: activeOffers.length,
+    pendingOffersCount: offers.filter((o) => o.status === "pending").length,
     totalOffers: offers.length,
     totalBookings: bookings.length,
     paidBookings: paidBookings.length,
@@ -78,6 +79,7 @@ export async function getCampingStats(campingId: string) {
   return {
     offers: mine.length,
     activeOffers: mine.filter((o) => o.status === "active").length,
+    pendingOffers: mine.filter((o) => o.status === "pending").length,
     paidSales: countPaidSales(myBookings),
     revenue: sumPaidRevenue(myBookings),
     pendingPayments: myBookings.filter((b) => b.status === "pending").length,

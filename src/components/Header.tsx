@@ -96,6 +96,12 @@ export default function Header({ branding, customer }: HeaderProps) {
           >
             Espacio campings
           </Link>
+          <Link
+            href="/camping/registro"
+            className="hidden text-sm font-medium text-brand-accent hover:underline lg:inline"
+          >
+            Registrar camping
+          </Link>
 
           {isLoggedIn ? (
             <>
@@ -195,6 +201,13 @@ export default function Header({ branding, customer }: HeaderProps) {
           onClick={closeMenu}
         >
           Espacio campings
+        </Link>
+        <Link
+          href="/camping/registro"
+          className="rounded-md px-3 py-3 text-base font-medium text-brand-accent transition hover:bg-orange-50"
+          onClick={closeMenu}
+        >
+          Registrar camping
         </Link>
         {isLoggedIn ? (
           <>

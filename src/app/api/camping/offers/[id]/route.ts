@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { deleteOffer, getOfferById, upsertOffer } from "@/lib/offers-store";
+import { getCampingById } from "@/lib/campings-store";
 import {
   inferDisplayPagesFromFlags,
   sanitizeDisplayPages,
 } from "@/lib/offer-display-pages";
 import { getSessionSubject } from "@/lib/role-session";
-import type { OfferRecord } from "@/lib/types";
+import type { OfferRecord, OfferStatus } from "@/lib/types";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -14,6 +15,14 @@ export async function PUT(request: Request, context: Ctx) {
   if (!campingId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
+  const camping = await getCampingById(campingId);
+  if (!camping || camping.status !== "active") {
+    return NextResponse.json(
+      { error: "Tu camping debe estar activo para editar ofertas" },
+      { status: 403 }
+    );
+  }
+
   const { id } = await context.params;
   const current = await getOfferById(id);
   if (!current || current.campingId !== campingId) {
@@ -41,6 +50,20 @@ export async function PUT(request: Request, context: Ctx) {
       isHotel: false,
     });
 
+  const requestedStatus = body.status as OfferStatus | undefined;
+  let status: OfferStatus = current.status;
+  if (requestedStatus === "draft") {
+    status = "draft";
+  } else if (
+    requestedStatus === "pending" ||
+    requestedStatus === "inactive" ||
+    current.status === "active" ||
+    current.status === "pending"
+  ) {
+    // Any publish/edit from the portal needs admin re-approval.
+    status = "pending";
+  }
+
   const offer: OfferRecord = {
     ...current,
     ...body,
@@ -52,8 +75,8 @@ export async function PUT(request: Request, context: Ctx) {
     petFriendly,
     isGlamping,
     displayPages,
-    // Never allow camping portal to mark an offer as a hotel.
     isHotel: false,
+    status,
   };
   await upsertOffer(offer);
   return NextResponse.json(offer);
