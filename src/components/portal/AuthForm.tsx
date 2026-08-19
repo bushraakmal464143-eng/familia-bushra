@@ -102,7 +102,7 @@ function AuthFormInner({
       router.refresh();
     } catch {
       setError(
-        "No se pudo conectar con el servidor. Comprueba que el backend esté en marcha (puerto 4000)."
+        "No se pudo conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo."
       );
     } finally {
       setLoading(false);

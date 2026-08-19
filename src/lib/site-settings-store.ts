@@ -1,9 +1,14 @@
 import { readJson, writeJson } from "@/lib/json-store";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabase/client";
+import {
+  siteSettingsFromRow,
+  siteSettingsToRow,
+  type SiteSettingsRow,
+} from "@/lib/supabase/mappers";
 import type { SiteSettings } from "@/lib/types";
 
 const FILE = "site-settings.json";
-
 const HERO_IMAGE = "/offers/homepage-hero.png";
 
 export function defaultSiteSettings(): SiteSettings {
@@ -40,12 +45,47 @@ function normalizeSiteName(name: string): string {
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
+  if (isSupabaseConfigured()) {
+    const { data, error } = await getSupabaseAdmin()
+      .from("site_settings")
+      .select("*")
+      .eq("id", "default")
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) {
+      const defaults = defaultSiteSettings();
+      const { error: seedError } = await getSupabaseAdmin()
+        .from("site_settings")
+        .upsert(siteSettingsToRow(defaults), { onConflict: "id" });
+      if (seedError) throw seedError;
+      const { data: seeded, error: refetchError } = await getSupabaseAdmin()
+        .from("site_settings")
+        .select("*")
+        .eq("id", "default")
+        .maybeSingle();
+      if (refetchError) throw refetchError;
+      if (seeded) {
+        const merged = {
+          ...defaultSiteSettings(),
+          ...siteSettingsFromRow(seeded as SiteSettingsRow),
+        };
+        if (merged.siteName) merged.siteName = normalizeSiteName(merged.siteName);
+        return merged;
+      }
+      return defaults;
+    }
+    const merged = {
+      ...defaultSiteSettings(),
+      ...siteSettingsFromRow(data as SiteSettingsRow),
+    };
+    if (merged.siteName) merged.siteName = normalizeSiteName(merged.siteName);
+    return merged;
+  }
+
   const raw = await readJson<Partial<SiteSettings> | null>(FILE, null);
   if (!raw) return defaultSiteSettings();
   const merged = { ...defaultSiteSettings(), ...raw };
-  if (merged.siteName) {
-    merged.siteName = normalizeSiteName(merged.siteName);
-  }
+  if (merged.siteName) merged.siteName = normalizeSiteName(merged.siteName);
   return merged;
 }
 
@@ -58,6 +98,15 @@ export async function saveSiteSettings(
     ...patch,
     updatedAt: new Date().toISOString(),
   };
+
+  if (isSupabaseConfigured()) {
+    const { error } = await getSupabaseAdmin()
+      .from("site_settings")
+      .upsert(siteSettingsToRow(next), { onConflict: "id" });
+    if (error) throw error;
+    return next;
+  }
+
   await writeJson(FILE, next);
   return next;
 }

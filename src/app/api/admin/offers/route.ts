@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   const pageFlags = displayPages ? flagsFromDisplayPages(displayPages) : null;
 
   const offer: OfferRecord = {
-    id: body.id?.trim() || generateOfferId(existing),
+    id: body.id?.trim() || (await generateOfferId(existing)),
     campingId: body.campingId?.trim() || "camp_1",
     title: body.title?.trim() ?? "",
     subtitle: cleanSubtitle(body.subtitle?.trim() ?? ""),

@@ -2,6 +2,16 @@ import { defaultOffers, type OfferCategory } from "@/lib/offers";
 import { cleanSubtitle } from "@/lib/clean-offer-text";
 import { readJson, writeJson } from "@/lib/json-store";
 import { getCampings } from "@/lib/campings-store";
+import {
+  getSupabaseAdmin,
+  isSupabaseConfigured,
+  nextOfferId,
+} from "@/lib/supabase/client";
+import {
+  offerFromRow,
+  offerToRow,
+  type OfferRow,
+} from "@/lib/supabase/mappers";
 import { campingIdByOfferIndex } from "@/lib/seed-data";
 import { revalidateOfferPages } from "@/lib/revalidate-offers";
 import {
@@ -109,7 +119,34 @@ function buildSeedOffers(): OfferRecord[] {
   );
 }
 
+async function sbGetOffers(): Promise<OfferRecord[]> {
+  await getCampings();
+
+  const { data, error } = await getSupabaseAdmin()
+    .from("offers")
+    .select("*")
+    .order("id", { ascending: true });
+  if (error) throw error;
+  const rows = (data as OfferRow[]) ?? [];
+  if (rows.length === 0) {
+    const seeded = buildSeedOffers();
+    const { error: seedError } = await getSupabaseAdmin()
+      .from("offers")
+      .upsert(seeded.map(offerToRow), { onConflict: "id" });
+    if (seedError) throw seedError;
+    const { data: seededRows, error: refetchError } = await getSupabaseAdmin()
+      .from("offers")
+      .select("*")
+      .order("id", { ascending: true });
+    if (refetchError) throw refetchError;
+    return ((seededRows as OfferRow[]) ?? []).map(offerFromRow);
+  }
+  return rows.map(offerFromRow);
+}
+
 export async function getOffers(): Promise<OfferRecord[]> {
+  if (isSupabaseConfigured()) return sbGetOffers();
+
   const raw = await readJson<unknown[]>(FILE, buildSeedOffers());
   const offers = raw.map((item, i) =>
     migrateLegacyOffer(item as Record<string, unknown>, i)
@@ -134,6 +171,13 @@ export async function getOffers(): Promise<OfferRecord[]> {
 }
 
 export async function saveOffers(offers: OfferRecord[]): Promise<void> {
+  if (isSupabaseConfigured()) {
+    const { error } = await getSupabaseAdmin()
+      .from("offers")
+      .upsert(offers.map(offerToRow), { onConflict: "id" });
+    if (error) throw error;
+    return;
+  }
   await writeJson(FILE, offers);
 }
 
@@ -164,6 +208,18 @@ export async function upsertOffer(offer: OfferRecord): Promise<OfferRecord> {
 }
 
 export async function deleteOffer(id: string): Promise<boolean> {
+  if (isSupabaseConfigured()) {
+    const { data, error } = await getSupabaseAdmin()
+      .from("offers")
+      .delete()
+      .eq("id", id)
+      .select("id");
+    if (error) throw error;
+    if (!data?.length) return false;
+    revalidateOfferPages(id);
+    return true;
+  }
+
   const offers = await getOffers();
   const next = offers.filter((o) => o.id !== id);
   if (next.length === offers.length) return false;
@@ -172,7 +228,8 @@ export async function deleteOffer(id: string): Promise<boolean> {
   return true;
 }
 
-export function generateOfferId(existing: OfferRecord[]): string {
+export async function generateOfferId(existing: OfferRecord[]): Promise<string> {
+  if (isSupabaseConfigured()) return nextOfferId();
   const numeric = existing
     .map((o) => parseInt(o.id, 10))
     .filter((n) => !Number.isNaN(n));

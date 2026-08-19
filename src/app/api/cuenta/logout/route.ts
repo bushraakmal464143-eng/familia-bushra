@@ -1,5 +1,5 @@
-import { proxyToBackend } from "@/lib/backend-proxy";
+import { handleCuentaLogout } from "@/lib/cuenta-auth";
 
-export async function POST(request: Request) {
-  return proxyToBackend(request, "/api/cuenta/logout");
+export async function POST() {
+  return handleCuentaLogout();
 }

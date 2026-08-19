@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     requestedStatus === "draft" ? "draft" : "pending";
 
   const offer: OfferRecord = {
-    id: generateOfferId(existing),
+    id: await generateOfferId(existing),
     campingId,
     title: body.title?.trim() ?? "",
     subtitle: body.subtitle?.trim() ?? camping.name,

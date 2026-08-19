@@ -1,5 +1,5 @@
-import { proxyToBackend } from "@/lib/backend-proxy";
+import { handleCuentaRegister } from "@/lib/cuenta-auth";
 
 export async function POST(request: Request) {
-  return proxyToBackend(request, "/api/cuenta/register");
+  return handleCuentaRegister(request);
 }

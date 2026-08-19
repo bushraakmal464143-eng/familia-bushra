@@ -1,5 +1,5 @@
-import { proxyToBackend } from "@/lib/backend-proxy";
+import { handleCuentaForgotPassword } from "@/lib/cuenta-auth";
 
 export async function POST(request: Request) {
-  return proxyToBackend(request, "/api/cuenta/forgot-password");
+  return handleCuentaForgotPassword(request);
 }
