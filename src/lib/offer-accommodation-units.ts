@@ -48,7 +48,7 @@ export function sanitizeOfferAccommodations(
             ? pricePerPerson
             : offer.priceFrom,
         maxGuests,
-        roomsLeft,
+        ...(roomsLeft !== undefined ? { roomsLeft } : {}),
         refundable: Boolean(row.refundable),
         enabled: row.enabled !== false,
       } satisfies OfferAccommodationUnit;
