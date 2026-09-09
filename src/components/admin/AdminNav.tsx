@@ -10,6 +10,7 @@ const links = [
   { href: "/admin/site", label: "Web", exact: false },
   { href: "/admin/campings", label: "Campings", exact: false },
   { href: "/admin/clientes", label: "Clientes", exact: false },
+  { href: "/admin/accesos", label: "Accesos", exact: false },
   { href: "/admin/offers", label: "Ofertas", exact: false },
 ];
 

@@ -115,6 +115,7 @@ export async function updateCustomerByEmail(
     name: string;
     passwordHash: string;
     googleId: string;
+    lastLoginAt: string;
     resetTokenHash: string | undefined;
     resetTokenExpiresAt: string | undefined;
   }>
@@ -141,11 +142,29 @@ export async function updateCustomerByEmail(
   return updated;
 }
 
+export async function touchCustomerLogin(customerId: string): Promise<void> {
+  const lastLoginAt = new Date().toISOString();
+  if (isSupabaseConfigured()) {
+    const { error } = await getSupabaseAdmin()
+      .from("customers")
+      .update({ last_login_at: lastLoginAt })
+      .eq("id", customerId);
+    if (error) throw error;
+    return;
+  }
+
+  const customers = await readJson<CustomerWithReset[]>(FILE, []);
+  const index = customers.findIndex((c) => c.id === customerId);
+  if (index < 0) return;
+  customers[index] = { ...customers[index], lastLoginAt };
+  await writeJson(FILE, customers);
+}
+
 export async function findOrCreateCustomerFromGoogle(profile: {
   googleId: string;
   email: string;
   name: string;
-}): Promise<Customer> {
+}): Promise<{ customer: Customer; isNew: boolean }> {
   const byGoogle = isSupabaseConfigured()
     ? await (async () => {
         const { data } = await getSupabaseAdmin()
@@ -159,21 +178,23 @@ export async function findOrCreateCustomerFromGoogle(profile: {
         (c) => c.googleId === profile.googleId
       );
 
-  if (byGoogle) return byGoogle;
+  if (byGoogle) return { customer: byGoogle, isNew: false };
 
   const byEmail = await getCustomerByEmail(profile.email);
   if (byEmail) {
-    return (await updateCustomerByEmail(profile.email, {
+    const linked = (await updateCustomerByEmail(profile.email, {
       googleId: profile.googleId,
       name: profile.name || byEmail.name,
     }))!;
+    return { customer: linked, isNew: false };
   }
 
-  return createCustomer({
+  const customer = await createCustomer({
     name: profile.name,
     email: profile.email,
     googleId: profile.googleId,
   });
+  return { customer, isNew: true };
 }
 
 export async function registerCustomer(data: {

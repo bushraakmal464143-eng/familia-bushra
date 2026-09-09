@@ -66,6 +66,20 @@ export type Customer = {
   passwordHash?: string;
   googleId?: string;
   createdAt: string;
+  lastLoginAt?: string;
+};
+
+export type AuthEventType = "signup" | "login";
+export type AuthEventMethod = "email" | "google";
+
+export type AuthEvent = {
+  id: string;
+  customerId?: string;
+  email: string;
+  name?: string;
+  eventType: AuthEventType;
+  method: AuthEventMethod;
+  createdAt: string;
 };
 
 /** Bungalow / chalet unit configured per offer in admin */

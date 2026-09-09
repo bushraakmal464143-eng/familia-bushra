@@ -1,6 +1,10 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { findOrCreateCustomerFromGoogle } from "@/lib/customers-store";
+import { recordAuthEvent } from "@/lib/auth-events-store";
+import {
+  findOrCreateCustomerFromGoogle,
+  touchCustomerLogin,
+} from "@/lib/customers-store";
 import {
   fetchGoogleProfile,
   getRedirectUri,
@@ -50,7 +54,17 @@ export async function GET(request: Request) {
   try {
     const redirectUri = getRedirectUri(request.url);
     const profile = await fetchGoogleProfile(code, redirectUri);
-    const customer = await findOrCreateCustomerFromGoogle(profile);
+    const { customer, isNew } = await findOrCreateCustomerFromGoogle(profile);
+
+    await recordAuthEvent({
+      customerId: customer.id,
+      email: customer.email,
+      name: customer.name,
+      eventType: isNew ? "signup" : "login",
+      method: "google",
+    });
+    await touchCustomerLogin(customer.id);
+
     const token = createRoleToken("customer", customer.id);
 
     const response = NextResponse.redirect(new URL(from, request.url));

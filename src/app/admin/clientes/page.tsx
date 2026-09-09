@@ -34,14 +34,28 @@ export default async function AdminCustomersPage() {
         revenue,
       };
     })
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .sort((a, b) => {
+      const aLogin = a.lastLoginAt ?? a.createdAt;
+      const bLogin = b.lastLoginAt ?? b.createdAt;
+      return bLogin.localeCompare(aLogin);
+    });
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
-      <p className="mt-1 text-gray-600">
-        Usuarios que se han registrado o han iniciado sesión en la web.
-      </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
+          <p className="mt-1 text-gray-600">
+            Usuarios registrados y su último acceso.
+          </p>
+        </div>
+        <Link
+          href="/admin/accesos"
+          className="text-sm font-medium text-brand-accent hover:underline"
+        >
+          Ver historial de accesos →
+        </Link>
+      </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -72,11 +86,12 @@ export default async function AdminCustomersPage() {
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
+            <table className="w-full min-w-[880px] text-left text-sm">
               <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
                 <tr>
                   <th className="px-4 py-3 font-medium">Cliente</th>
                   <th className="px-4 py-3 font-medium">Alta</th>
+                  <th className="px-4 py-3 font-medium">Último acceso</th>
                   <th className="px-4 py-3 font-medium">Acceso</th>
                   <th className="px-4 py-3 font-medium">Reservas</th>
                   <th className="px-4 py-3 font-medium">Pagadas</th>
@@ -101,6 +116,15 @@ export default async function AdminCustomersPage() {
                       {format(new Date(customer.createdAt), "d MMM yyyy HH:mm", {
                         locale: es,
                       })}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                      {customer.lastLoginAt
+                        ? format(
+                            new Date(customer.lastLoginAt),
+                            "d MMM yyyy HH:mm",
+                            { locale: es }
+                          )
+                        : "—"}
                     </td>
                     <td className="px-4 py-3 text-gray-700">{customer.loginMethod}</td>
                     <td className="px-4 py-3 font-medium text-gray-900">

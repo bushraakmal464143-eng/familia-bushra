@@ -7,10 +7,12 @@ import {
   verifyAdminCredentials,
 } from "@/lib/admin-auth";
 import { createSessionToken } from "@/lib/admin-session";
+import { recordAuthEvent } from "@/lib/auth-events-store";
 import {
   createCustomer,
   getCustomerByEmail,
   getCustomerById,
+  touchCustomerLogin,
   updateCustomerByEmail,
 } from "@/lib/customers-store";
 import { hashPassword, verifyPassword } from "@/lib/password";
@@ -91,6 +93,15 @@ export async function handleCuentaRegister(request: Request) {
       passwordHash: hashPassword(password),
     });
 
+    await recordAuthEvent({
+      customerId: customer.id,
+      email: customer.email,
+      name: customer.name,
+      eventType: "signup",
+      method: "email",
+    });
+    await touchCustomerLogin(customer.id);
+
     const response = NextResponse.json(
       { ok: true, user: stripCustomer(customer) },
       { status: 201 }
@@ -145,6 +156,15 @@ export async function handleCuentaLogin(request: Request) {
       { status: 401 }
     );
   }
+
+  await recordAuthEvent({
+    customerId: customer.id,
+    email: customer.email,
+    name: customer.name,
+    eventType: "login",
+    method: "email",
+  });
+  await touchCustomerLogin(customer.id);
 
   const response = NextResponse.json({ ok: true, user: stripCustomer(customer) });
   const opts = roleCookieOptions("customer", createRoleToken("customer", customer.id));

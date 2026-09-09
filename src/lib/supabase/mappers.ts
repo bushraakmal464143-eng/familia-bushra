@@ -18,6 +18,7 @@ export type CustomerRow = {
   reset_token_hash: string | null;
   reset_token_expires_at: string | null;
   created_at: string;
+  last_login_at: string | null;
 };
 
 export type CampingRow = {
@@ -121,6 +122,7 @@ export function customerFromRow(row: CustomerRow): Customer & {
     passwordHash: row.password_hash ?? undefined,
     googleId: row.google_id ?? undefined,
     createdAt: row.created_at,
+    lastLoginAt: row.last_login_at ?? undefined,
     resetTokenHash: row.reset_token_hash ?? undefined,
     resetTokenExpiresAt: row.reset_token_expires_at ?? undefined,
   };
@@ -141,6 +143,7 @@ export function customerToRow(
     reset_token_hash: customer.resetTokenHash ?? null,
     reset_token_expires_at: customer.resetTokenExpiresAt ?? null,
     created_at: customer.createdAt,
+    last_login_at: customer.lastLoginAt ?? null,
   };
 }
 

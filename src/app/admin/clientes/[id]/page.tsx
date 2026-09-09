@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getAuthEventsForCustomer } from "@/lib/auth-events-store";
 import { getBookings } from "@/lib/bookings-store";
 import { getCustomerById, stripCustomerSecrets } from "@/lib/customers-store";
 import { getOffers } from "@/lib/offers-store";
@@ -11,13 +12,27 @@ export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
 
+const eventLabels = {
+  signup: "Registro",
+  login: "Login",
+} as const;
+
+const methodLabels = {
+  email: "Email",
+  google: "Google",
+} as const;
+
 export default async function AdminCustomerDetailPage({ params }: Props) {
   const { id } = await params;
   const customer = await getCustomerById(id);
   if (!customer) notFound();
 
   const safe = stripCustomerSecrets(customer);
-  const [bookings, offers] = await Promise.all([getBookings(), getOffers()]);
+  const [bookings, offers, authEvents] = await Promise.all([
+    getBookings(),
+    getOffers(),
+    getAuthEventsForCustomer(customer.id),
+  ]);
   const customerBookings = bookings
     .filter(
       (b) =>
@@ -51,6 +66,16 @@ export default async function AdminCustomerDetailPage({ params }: Props) {
           })}
         />
         <DetailCard
+          label="Último acceso"
+          value={
+            safe.lastLoginAt
+              ? format(new Date(safe.lastLoginAt), "d MMM yyyy HH:mm", {
+                  locale: es,
+                })
+              : "—"
+          }
+        />
+        <DetailCard
           label="Método de acceso"
           value={
             customer.googleId
@@ -59,10 +84,6 @@ export default async function AdminCustomerDetailPage({ params }: Props) {
                 ? "Email y contraseña"
                 : "—"
           }
-        />
-        <DetailCard
-          label="Google ID"
-          value={customer.googleId ?? "—"}
         />
       </div>
 
@@ -84,6 +105,46 @@ export default async function AdminCustomerDetailPage({ params }: Props) {
       </div>
 
       <section className="mt-10">
+        <h2 className="text-lg font-bold text-gray-900">Accesos</h2>
+        <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          {authEvents.length === 0 ? (
+            <p className="p-6 text-sm text-gray-600">
+              Todavía no hay registros de login o signup para este cliente.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[480px] text-left text-sm">
+                <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Fecha</th>
+                    <th className="px-4 py-3 font-medium">Evento</th>
+                    <th className="px-4 py-3 font-medium">Método</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {authEvents.map((event) => (
+                    <tr key={event.id}>
+                      <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                        {format(new Date(event.createdAt), "d MMM yyyy HH:mm", {
+                          locale: es,
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-gray-900">
+                        {eventLabels[event.eventType]}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {methodLabels[event.method]}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-10">
         <h2 className="text-lg font-bold text-gray-900">Reservas del cliente</h2>
         <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           {customerBookings.length === 0 ? (
@@ -98,33 +159,24 @@ export default async function AdminCustomerDetailPage({ params }: Props) {
                     <th className="px-4 py-3 font-medium">Fecha</th>
                     <th className="px-4 py-3 font-medium">Oferta</th>
                     <th className="px-4 py-3 font-medium">Entrada / Salida</th>
-                    <th className="px-4 py-3 font-medium">Huéspedes</th>
-                    <th className="px-4 py-3 font-medium">Importe</th>
+                    <th className="px-4 py-3 font-medium">Total</th>
                     <th className="px-4 py-3 font-medium">Estado</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {customerBookings.map((booking) => (
-                    <tr key={booking.id} className="hover:bg-gray-50/80">
+                    <tr key={booking.id}>
                       <td className="px-4 py-3 whitespace-nowrap text-gray-600">
                         {format(new Date(booking.createdAt), "d MMM yyyy", {
                           locale: es,
                         })}
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">
-                          {offerById[booking.offerId]?.title ?? booking.offerId}
-                        </p>
-                        {booking.accommodationName && (
-                          <p className="text-xs text-gray-500">
-                            {booking.accommodationName}
-                          </p>
-                        )}
+                      <td className="px-4 py-3 text-gray-900">
+                        {offerById[booking.offerId]?.title ?? booking.offerId}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-gray-600">
                         {booking.checkIn} → {booking.checkOut}
                       </td>
-                      <td className="px-4 py-3 text-gray-700">{booking.guests}</td>
                       <td className="px-4 py-3 text-gray-700">
                         {booking.totalAmount} €
                       </td>

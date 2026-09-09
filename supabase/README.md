@@ -49,6 +49,17 @@ You only need to deploy the Next.js app — no separate backend server.
 
 If Supabase env vars are missing, the app falls back to local JSON files in `data/` (development only).
 
+## Auth signup / login history
+
+After the base schema is applied, also run [`migration-auth-events.sql`](./migration-auth-events.sql) once (or use the updated `schema.sql` on a fresh project).
+
+That adds:
+
+- `customers.last_login_at` — last successful access
+- `auth_events` — each signup/login (`email` or `google`)
+
+View in admin: **Accesos** (`/admin/accesos`) and **Clientes**.
+
 ## Legacy Express backend
 
 The `/backend` folder is kept for reference but is **not required** when Supabase is configured. Run it only with `npm run dev:legacy-api` if needed.

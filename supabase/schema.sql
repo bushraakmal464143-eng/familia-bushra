@@ -1,9 +1,21 @@
 -- Run in Supabase SQL Editor: https://supabase.com/dashboard → SQL → New query
 
-CREATE TYPE camping_status AS ENUM ('pending', 'active', 'suspended');
-CREATE TYPE offer_status AS ENUM ('pending', 'active', 'draft', 'inactive');
-CREATE TYPE offer_setting AS ENUM ('mountain', 'beach');
-CREATE TYPE booking_status AS ENUM ('pending', 'paid', 'cancelled');
+DO $$ BEGIN
+  CREATE TYPE camping_status AS ENUM ('pending', 'active', 'suspended');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+  CREATE TYPE offer_status AS ENUM ('pending', 'active', 'draft', 'inactive');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+  CREATE TYPE offer_setting AS ENUM ('mountain', 'beach');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+  CREATE TYPE booking_status AS ENUM ('pending', 'paid', 'cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS customers (
   id TEXT PRIMARY KEY,
@@ -13,7 +25,8 @@ CREATE TABLE IF NOT EXISTS customers (
   google_id TEXT UNIQUE,
   reset_token_hash TEXT,
   reset_token_expires_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_login_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS campings (
@@ -126,10 +139,22 @@ CREATE TABLE IF NOT EXISTS partner_contacts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS auth_events (
+  id BIGSERIAL PRIMARY KEY,
+  customer_id TEXT REFERENCES customers(id) ON DELETE SET NULL,
+  email TEXT NOT NULL,
+  name TEXT,
+  event_type TEXT NOT NULL CHECK (event_type IN ('signup', 'login')),
+  method TEXT NOT NULL CHECK (method IN ('email', 'google')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE INDEX IF NOT EXISTS idx_offers_camping ON offers(camping_id);
 CREATE INDEX IF NOT EXISTS idx_offers_status ON offers(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_customer ON bookings(customer_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_camping ON bookings(camping_id);
+CREATE INDEX IF NOT EXISTS idx_auth_events_created ON auth_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_auth_events_customer ON auth_events(customer_id);
 
 -- Disable RLS for server-side access via service role key (app handles auth in cookies).
 ALTER TABLE customers DISABLE ROW LEVEL SECURITY;
@@ -139,3 +164,4 @@ ALTER TABLE bookings DISABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings DISABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_inquiries DISABLE ROW LEVEL SECURITY;
 ALTER TABLE partner_contacts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE auth_events DISABLE ROW LEVEL SECURITY;
