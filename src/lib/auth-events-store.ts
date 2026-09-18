@@ -35,67 +35,89 @@ export async function recordAuthEvent(input: {
 }): Promise<void> {
   const createdAt = new Date().toISOString();
 
-  if (isSupabaseConfigured()) {
-    const { error } = await getSupabaseAdmin().from("auth_events").insert({
-      customer_id: input.customerId ?? null,
-      email: input.email.trim().toLowerCase(),
-      name: input.name?.trim() || null,
-      event_type: input.eventType,
-      method: input.method,
-      created_at: createdAt,
-    });
-    if (error) throw error;
-    return;
-  }
+  try {
+    if (isSupabaseConfigured()) {
+      const { error } = await getSupabaseAdmin().from("auth_events").insert({
+        customer_id: input.customerId ?? null,
+        email: input.email.trim().toLowerCase(),
+        name: input.name?.trim() || null,
+        event_type: input.eventType,
+        method: input.method,
+        created_at: createdAt,
+      });
+      if (error) {
+        console.error("[auth_events] insert failed:", error.message);
+      }
+      return;
+    }
 
-  const events = await readJson<AuthEvent[]>(FILE, []);
-  events.push({
-    id: generateId("auth", events),
-    customerId: input.customerId,
-    email: input.email.trim().toLowerCase(),
-    name: input.name?.trim() || undefined,
-    eventType: input.eventType,
-    method: input.method,
-    createdAt,
-  });
-  await writeJson(FILE, events);
+    const events = await readJson<AuthEvent[]>(FILE, []);
+    events.push({
+      id: generateId("auth", events),
+      customerId: input.customerId,
+      email: input.email.trim().toLowerCase(),
+      name: input.name?.trim() || undefined,
+      eventType: input.eventType,
+      method: input.method,
+      createdAt,
+    });
+    await writeJson(FILE, events);
+  } catch (err) {
+    console.error("[auth_events] record failed:", err);
+  }
 }
 
 export async function getAuthEvents(limit = 100): Promise<AuthEvent[]> {
-  if (isSupabaseConfigured()) {
-    const { data, error } = await getSupabaseAdmin()
-      .from("auth_events")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return ((data ?? []) as AuthEventRow[]).map(fromRow);
-  }
+  try {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await getSupabaseAdmin()
+        .from("auth_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) {
+        console.error("[auth_events] list failed:", error.message);
+        return [];
+      }
+      return ((data ?? []) as AuthEventRow[]).map(fromRow);
+    }
 
-  const events = await readJson<AuthEvent[]>(FILE, []);
-  return [...events]
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, limit);
+    const events = await readJson<AuthEvent[]>(FILE, []);
+    return [...events]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  } catch (err) {
+    console.error("[auth_events] list failed:", err);
+    return [];
+  }
 }
 
 export async function getAuthEventsForCustomer(
   customerId: string,
   limit = 50
 ): Promise<AuthEvent[]> {
-  if (isSupabaseConfigured()) {
-    const { data, error } = await getSupabaseAdmin()
-      .from("auth_events")
-      .select("*")
-      .eq("customer_id", customerId)
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return ((data ?? []) as AuthEventRow[]).map(fromRow);
-  }
+  try {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await getSupabaseAdmin()
+        .from("auth_events")
+        .select("*")
+        .eq("customer_id", customerId)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) {
+        console.error("[auth_events] customer list failed:", error.message);
+        return [];
+      }
+      return ((data ?? []) as AuthEventRow[]).map(fromRow);
+    }
 
-  const events = await readJson<AuthEvent[]>(FILE, []);
-  return events
-    .filter((e) => e.customerId === customerId)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, limit);
+    const events = await readJson<AuthEvent[]>(FILE, []);
+    return events
+      .filter((e) => e.customerId === customerId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  } catch (err) {
+    console.error("[auth_events] customer list failed:", err);
+    return [];
+  }
 }

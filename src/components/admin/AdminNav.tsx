@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import AdminNotifications from "@/components/admin/AdminNotifications";
 import { SITE_NAME } from "@/lib/site";
 
 const links = [
@@ -95,33 +96,36 @@ export default function AdminNav() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <Link
-            href="/"
-            target="_blank"
-            className="text-sm text-gray-500 hover:text-brand-accent"
-          >
-            Ver web →
-          </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <AdminNotifications />
+          <div className="hidden items-center gap-3 md:flex">
+            <Link
+              href="/"
+              target="_blank"
+              className="text-sm text-gray-500 hover:text-brand-accent"
+            >
+              Ver web →
+            </Link>
+            <button
+              type="button"
+              onClick={logout}
+              className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-50"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+
           <button
             type="button"
-            onClick={logout}
-            className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-50"
+            className="inline-flex shrink-0 items-center justify-center rounded-md border border-gray-200 p-2 text-gray-700 transition hover:bg-gray-50 md:hidden"
+            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={isMenuOpen}
+            aria-controls="admin-mobile-menu"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
           >
-            Cerrar sesión
+            {isMenuOpen ? "✕" : "☰"}
           </button>
         </div>
-
-        <button
-          type="button"
-          className="inline-flex shrink-0 items-center justify-center rounded-md border border-gray-200 p-2 text-gray-700 transition hover:bg-gray-50 md:hidden"
-          aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={isMenuOpen}
-          aria-controls="admin-mobile-menu"
-          onClick={() => setIsMenuOpen((prev) => !prev)}
-        >
-          {isMenuOpen ? "✕" : "☰"}
-        </button>
       </div>
 
       <nav

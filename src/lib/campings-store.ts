@@ -53,7 +53,14 @@ async function sbGetCampings(): Promise<Camping[]> {
 }
 
 export async function getCampings(): Promise<Camping[]> {
-  if (isSupabaseConfigured()) return sbGetCampings();
+  if (isSupabaseConfigured()) {
+    try {
+      return await sbGetCampings();
+    } catch (err) {
+      console.error("[campings] falling back to local seed:", err);
+      return buildSeedCampings().map(normalizeCamping);
+    }
+  }
   const campings = await readJson(FILE, buildSeedCampings());
   return campings.map(normalizeCamping);
 }

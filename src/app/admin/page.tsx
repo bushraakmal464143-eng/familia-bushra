@@ -1,9 +1,42 @@
 import Link from "next/link";
+import AdminCampingsSearchTable from "@/components/admin/AdminCampingsSearchTable";
 import { getPartnerContacts } from "@/lib/partner-contacts-store";
 import { getCustomers } from "@/lib/customers-store";
 import { getAdminStats } from "@/lib/stats";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+
+function toCampingRows(
+  campings: Awaited<ReturnType<typeof getAdminStats>>["campingsWithStats"]
+) {
+  return campings.map(
+    ({
+      id,
+      name,
+      email,
+      location,
+      region,
+      status,
+      profileComplete,
+      offerCount,
+      activeOffers,
+      paidSales,
+      revenue,
+    }) => ({
+      id,
+      name,
+      email,
+      location,
+      region,
+      status,
+      profileComplete,
+      offerCount,
+      activeOffers,
+      paidSales,
+      revenue,
+    })
+  );
+}
 
 export default async function AdminDashboardPage() {
   const [stats, partnerContacts, customers] = await Promise.all([
@@ -131,42 +164,16 @@ export default async function AdminDashboardPage() {
       )}
 
       <section className="mt-10">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-gray-900">Campings</h2>
           <Link href="/admin/campings" className="text-sm font-medium text-brand-accent hover:underline">
             Ver todos →
           </Link>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-              <tr>
-                <th className="px-4 py-3">Camping</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Ofertas</th>
-                <th className="px-4 py-3">Ventas</th>
-                <th className="px-4 py-3">Ingresos</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {stats.campingsWithStats.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50/80">
-                  <td className="px-4 py-3">
-                    <Link href={`/admin/campings/${c.id}`} className="font-medium text-brand-forest hover:underline">
-                      {c.name}
-                    </Link>
-                    <p className="text-xs text-gray-500">{c.location}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={c.status} />
-                  </td>
-                  <td className="px-4 py-3">{c.activeOffers} / {c.offerCount}</td>
-                  <td className="px-4 py-3 font-medium">{c.paidSales}</td>
-                  <td className="px-4 py-3">{c.revenue} €</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-4">
+          <AdminCampingsSearchTable
+            campings={toCampingRows(stats.campingsWithStats)}
+          />
         </div>
       </section>
     </div>
@@ -210,22 +217,4 @@ function StatCard({
     </div>
   );
   return href ? <Link href={href}>{inner}</Link> : inner;
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    active: "bg-green-100 text-brand-green",
-    pending: "bg-orange-100 text-brand-accent",
-    suspended: "bg-gray-100 text-gray-600",
-  };
-  const labels: Record<string, string> = {
-    active: "Activo",
-    pending: "Pendiente",
-    suspended: "Suspendido",
-  };
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles[status] ?? ""}`}>
-      {labels[status] ?? status}
-    </span>
-  );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminCampingsSearchTable from "@/components/admin/AdminCampingsSearchTable";
 import { getAdminStats } from "@/lib/stats";
 import type { CampingStatus } from "@/lib/types";
 
@@ -12,6 +13,38 @@ const STATUS_FILTERS: { value: "" | CampingStatus; label: string }[] = [
   { value: "active", label: "Activos" },
   { value: "suspended", label: "Suspendidos" },
 ];
+
+function toCampingRows(
+  campings: Awaited<ReturnType<typeof getAdminStats>>["campingsWithStats"]
+) {
+  return campings.map(
+    ({
+      id,
+      name,
+      email,
+      location,
+      region,
+      status,
+      profileComplete,
+      offerCount,
+      activeOffers,
+      paidSales,
+      revenue,
+    }) => ({
+      id,
+      name,
+      email,
+      location,
+      region,
+      status,
+      profileComplete,
+      offerCount,
+      activeOffers,
+      paidSales,
+      revenue,
+    })
+  );
+}
 
 export default async function AdminCampingsPage({ searchParams }: Props) {
   const { status: rawStatus } = await searchParams;
@@ -71,52 +104,12 @@ export default async function AdminCampingsPage({ searchParams }: Props) {
         </p>
       )}
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Alta</th>
-              <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3">Ventas</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {sorted.map((c) => (
-              <tr key={c.id} className="hover:bg-gray-50/80">
-                <td className="px-4 py-3 font-medium">{c.name}</td>
-                <td className="px-4 py-3 text-gray-600">{c.email}</td>
-                <td className="px-4 py-3 text-gray-500">
-                  {new Date(c.createdAt).toLocaleDateString("es-ES")}
-                </td>
-                <td className="px-4 py-3">
-                  {c.status}
-                  {!c.profileComplete && (
-                    <span className="ml-2 text-xs text-amber-700">
-                      · ficha incompleta
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3">{c.paidSales}</td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/admin/campings/${c.id}`}
-                    className="font-medium text-brand-accent hover:underline"
-                  >
-                    Ver detalle →
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {sorted.length === 0 && (
-          <p className="px-4 py-10 text-center text-gray-500">
-            No hay campings con este filtro.
-          </p>
-        )}
+      <div className="mt-6">
+        <AdminCampingsSearchTable
+          campings={toCampingRows(sorted)}
+          showEmail
+          emptyLabel="No hay campings con este filtro."
+        />
       </div>
     </div>
   );

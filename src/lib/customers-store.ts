@@ -96,9 +96,11 @@ export async function createCustomer(data: {
   };
 
   if (isSupabaseConfigured()) {
-    const { error } = await getSupabaseAdmin()
-      .from("customers")
-      .insert(customerToRow(customer));
+    const row = customerToRow(customer);
+    if (!customer.lastLoginAt) {
+      delete (row as { last_login_at?: string | null }).last_login_at;
+    }
+    const { error } = await getSupabaseAdmin().from("customers").insert(row);
     if (error) throw error;
     return customer;
   }
@@ -144,20 +146,26 @@ export async function updateCustomerByEmail(
 
 export async function touchCustomerLogin(customerId: string): Promise<void> {
   const lastLoginAt = new Date().toISOString();
-  if (isSupabaseConfigured()) {
-    const { error } = await getSupabaseAdmin()
-      .from("customers")
-      .update({ last_login_at: lastLoginAt })
-      .eq("id", customerId);
-    if (error) throw error;
-    return;
-  }
+  try {
+    if (isSupabaseConfigured()) {
+      const { error } = await getSupabaseAdmin()
+        .from("customers")
+        .update({ last_login_at: lastLoginAt })
+        .eq("id", customerId);
+      if (error) {
+        console.error("[customers] last_login_at update failed:", error.message);
+      }
+      return;
+    }
 
-  const customers = await readJson<CustomerWithReset[]>(FILE, []);
-  const index = customers.findIndex((c) => c.id === customerId);
-  if (index < 0) return;
-  customers[index] = { ...customers[index], lastLoginAt };
-  await writeJson(FILE, customers);
+    const customers = await readJson<CustomerWithReset[]>(FILE, []);
+    const index = customers.findIndex((c) => c.id === customerId);
+    if (index < 0) return;
+    customers[index] = { ...customers[index], lastLoginAt };
+    await writeJson(FILE, customers);
+  } catch (err) {
+    console.error("[customers] last_login_at update failed:", err);
+  }
 }
 
 export async function findOrCreateCustomerFromGoogle(profile: {

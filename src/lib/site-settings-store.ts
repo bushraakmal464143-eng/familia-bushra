@@ -46,40 +46,45 @@ function normalizeSiteName(name: string): string {
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   if (isSupabaseConfigured()) {
-    const { data, error } = await getSupabaseAdmin()
-      .from("site_settings")
-      .select("*")
-      .eq("id", "default")
-      .maybeSingle();
-    if (error) throw error;
-    if (!data) {
-      const defaults = defaultSiteSettings();
-      const { error: seedError } = await getSupabaseAdmin()
-        .from("site_settings")
-        .upsert(siteSettingsToRow(defaults), { onConflict: "id" });
-      if (seedError) throw seedError;
-      const { data: seeded, error: refetchError } = await getSupabaseAdmin()
+    try {
+      const { data, error } = await getSupabaseAdmin()
         .from("site_settings")
         .select("*")
         .eq("id", "default")
         .maybeSingle();
-      if (refetchError) throw refetchError;
-      if (seeded) {
-        const merged = {
-          ...defaultSiteSettings(),
-          ...siteSettingsFromRow(seeded as SiteSettingsRow),
-        };
-        if (merged.siteName) merged.siteName = normalizeSiteName(merged.siteName);
-        return merged;
+      if (error) throw error;
+      if (!data) {
+        const defaults = defaultSiteSettings();
+        const { error: seedError } = await getSupabaseAdmin()
+          .from("site_settings")
+          .upsert(siteSettingsToRow(defaults), { onConflict: "id" });
+        if (seedError) throw seedError;
+        const { data: seeded, error: refetchError } = await getSupabaseAdmin()
+          .from("site_settings")
+          .select("*")
+          .eq("id", "default")
+          .maybeSingle();
+        if (refetchError) throw refetchError;
+        if (seeded) {
+          const merged = {
+            ...defaultSiteSettings(),
+            ...siteSettingsFromRow(seeded as SiteSettingsRow),
+          };
+          if (merged.siteName) merged.siteName = normalizeSiteName(merged.siteName);
+          return merged;
+        }
+        return defaults;
       }
-      return defaults;
+      const merged = {
+        ...defaultSiteSettings(),
+        ...siteSettingsFromRow(data as SiteSettingsRow),
+      };
+      if (merged.siteName) merged.siteName = normalizeSiteName(merged.siteName);
+      return merged;
+    } catch (err) {
+      console.error("[site_settings] falling back to defaults:", err);
+      return defaultSiteSettings();
     }
-    const merged = {
-      ...defaultSiteSettings(),
-      ...siteSettingsFromRow(data as SiteSettingsRow),
-    };
-    if (merged.siteName) merged.siteName = normalizeSiteName(merged.siteName);
-    return merged;
   }
 
   const raw = await readJson<Partial<SiteSettings> | null>(FILE, null);

@@ -145,7 +145,14 @@ async function sbGetOffers(): Promise<OfferRecord[]> {
 }
 
 export async function getOffers(): Promise<OfferRecord[]> {
-  if (isSupabaseConfigured()) return sbGetOffers();
+  if (isSupabaseConfigured()) {
+    try {
+      return await sbGetOffers();
+    } catch (err) {
+      console.error("[offers] falling back to local seed:", err);
+      return buildSeedOffers();
+    }
+  }
 
   const raw = await readJson<unknown[]>(FILE, buildSeedOffers());
   const offers = raw.map((item, i) =>
