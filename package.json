@@ -2,6 +2,7 @@
   "name": "camping-site",
   "version": "0.1.0",
   "private": true,
+  "description": "Next.js frontend on Vercel + Supabase Postgres. Legacy Express in /backend is not used for production.",
   "scripts": {
     "dev": "next dev",
     "dev:web": "next dev",

@@ -1,0 +1,11 @@
+# Legacy Express API — not deployed on Vercel.
+# Production uses Next.js API routes + Supabase only.
+backend
+backend/**
+
+# Local / runtime artefacts
+data
+public/uploads
+.env
+.env.local
+.env*.local

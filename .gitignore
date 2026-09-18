@@ -36,8 +36,11 @@ yarn-error.log*
 /data/
 /public/uploads/
 
-# backend
+# backend — not deployed to Vercel (see root .vercelignore)
 /backend/node_modules/
+/backend/.env
+/backend/data/
+/backend/uploads/
 
 # typescript
 *.tsbuildinfo
