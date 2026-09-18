@@ -1,10 +1,5 @@
 {
-  "services": {
-    "frontend": {
-      "root": ".",
-      "framework": "nextjs",
-      "installCommand": "npm install",
-      "buildCommand": "npm run build"
-    }
-  }
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build"
 }
