@@ -5,6 +5,7 @@ export type CurrentCustomer = {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string;
 };
 
 export async function getCurrentCustomer(): Promise<CurrentCustomer | null> {
@@ -18,5 +19,6 @@ export async function getCurrentCustomer(): Promise<CurrentCustomer | null> {
     id: customer.id,
     name: customer.name,
     email: customer.email,
+    avatarUrl: customer.avatarUrl,
   };
 }

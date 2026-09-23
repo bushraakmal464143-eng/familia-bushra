@@ -25,10 +25,12 @@ export default function OfferCardImageCarousel({
 
   const [active, setActive] = useState(0);
   const [failed, setFailed] = useState<Record<string, boolean>>({});
+  const [loaded, setLoaded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setActive(0);
     setFailed({});
+    setLoaded({});
   }, [safeImages]);
 
   const visibleImages = useMemo(() => {
@@ -48,6 +50,7 @@ export default function OfferCardImageCarousel({
 
   const main =
     visibleImages[Math.min(active, visibleImages.length - 1)] ?? FALLBACK_IMAGE;
+  const isReady = Boolean(loaded[main]);
 
   const sizes = featured
     ? "(max-width: 1024px) 100vw, 42vw"
@@ -55,14 +58,29 @@ export default function OfferCardImageCarousel({
 
   return (
     <div className="group relative h-full w-full">
+      {!isReady && (
+        <div
+          className="skeleton-shimmer absolute inset-0 z-[1]"
+          aria-hidden
+        />
+      )}
+
       <Image
         src={main}
         alt={title}
         fill
-        className="object-cover"
+        className={`object-cover transition-opacity duration-300 ${
+          isReady ? "opacity-100" : "opacity-0"
+        }`}
         sizes={sizes}
+        onLoad={() => {
+          setLoaded((prev) => ({ ...prev, [main]: true }));
+        }}
         onError={() => {
-          if (main === FALLBACK_IMAGE) return;
+          if (main === FALLBACK_IMAGE) {
+            setLoaded((prev) => ({ ...prev, [main]: true }));
+            return;
+          }
           setFailed((prev) => ({ ...prev, [main]: true }));
           setActive(0);
         }}
@@ -89,7 +107,7 @@ export default function OfferCardImageCarousel({
             }}
           />
 
-          <div className="absolute bottom-2 right-2 rounded-full border border-white/20 bg-black/55 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white backdrop-blur-sm">
+          <div className="absolute bottom-2 right-2 z-[2] rounded-full border border-white/20 bg-black/55 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white backdrop-blur-sm">
             {Math.min(active, visibleImages.length - 1) + 1}/
             {visibleImages.length}
           </div>

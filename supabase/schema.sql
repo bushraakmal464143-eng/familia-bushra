@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS customers (
   id TEXT PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
+  avatar_url TEXT,
   password_hash TEXT,
   google_id TEXT UNIQUE,
   reset_token_hash TEXT,
@@ -28,6 +29,8 @@ CREATE TABLE IF NOT EXISTS customers (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   last_login_at TIMESTAMPTZ
 );
+
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
 CREATE TABLE IF NOT EXISTS campings (
   id TEXT PRIMARY KEY,

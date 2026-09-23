@@ -63,6 +63,7 @@ export type Customer = {
   id: string;
   email: string;
   name: string;
+  avatarUrl?: string;
   passwordHash?: string;
   googleId?: string;
   createdAt: string;

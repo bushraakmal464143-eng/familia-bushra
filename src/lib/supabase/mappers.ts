@@ -13,6 +13,7 @@ export type CustomerRow = {
   id: string;
   email: string;
   name: string;
+  avatar_url?: string | null;
   password_hash: string | null;
   google_id: string | null;
   reset_token_hash: string | null;
@@ -119,6 +120,7 @@ export function customerFromRow(row: CustomerRow): Customer & {
     id: row.id,
     email: row.email,
     name: row.name,
+    avatarUrl: row.avatar_url ?? undefined,
     passwordHash: row.password_hash ?? undefined,
     googleId: row.google_id ?? undefined,
     createdAt: row.created_at,
@@ -138,6 +140,7 @@ export function customerToRow(
     id: customer.id,
     email: customer.email,
     name: customer.name,
+    avatar_url: customer.avatarUrl ?? null,
     password_hash: customer.passwordHash ?? null,
     google_id: customer.googleId ?? null,
     reset_token_hash: customer.resetTokenHash ?? null,

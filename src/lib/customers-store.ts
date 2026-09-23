@@ -100,6 +100,9 @@ export async function createCustomer(data: {
     if (!customer.lastLoginAt) {
       delete (row as { last_login_at?: string | null }).last_login_at;
     }
+    if (!customer.avatarUrl) {
+      delete (row as { avatar_url?: string | null }).avatar_url;
+    }
     const { error } = await getSupabaseAdmin().from("customers").insert(row);
     if (error) throw error;
     return customer;
@@ -111,16 +114,69 @@ export async function createCustomer(data: {
   return customer;
 }
 
+type CustomerPatch = Partial<{
+  name: string;
+  avatarUrl: string | undefined;
+  passwordHash: string;
+  googleId: string;
+  lastLoginAt: string;
+  resetTokenHash: string | undefined;
+  resetTokenExpiresAt: string | undefined;
+}>;
+
+async function sbUpdateCustomer(
+  match: { column: "id" | "email"; value: string },
+  updated: CustomerWithReset
+): Promise<void> {
+  const row = customerToRow(updated);
+  const run = async (payload: Record<string, unknown>) =>
+    getSupabaseAdmin()
+      .from("customers")
+      .update(payload)
+      .eq(match.column, match.value);
+
+  let { error } = await run(row as unknown as Record<string, unknown>);
+  if (error && /avatar_url/i.test(error.message)) {
+    if (updated.avatarUrl) {
+      throw new Error(
+        "Falta la columna avatar_url en Supabase. Ejecuta supabase/migration-customer-avatar.sql"
+      );
+    }
+    const { avatar_url: _, ...withoutAvatar } = row;
+    ({ error } = await run(withoutAvatar as unknown as Record<string, unknown>));
+    if (!error) {
+      console.warn(
+        "[customers] avatar_url column missing — run supabase/migration-customer-avatar.sql"
+      );
+    }
+  }
+  if (error) throw error;
+}
+
+export async function updateCustomerById(
+  id: string,
+  patch: CustomerPatch
+): Promise<CustomerWithReset | undefined> {
+  const current = await getCustomerById(id);
+  if (!current) return undefined;
+
+  const updated: CustomerWithReset = { ...current, ...patch };
+  if (isSupabaseConfigured()) {
+    await sbUpdateCustomer({ column: "id", value: id }, updated);
+    return updated;
+  }
+
+  const customers = await readJson<CustomerWithReset[]>(FILE, []);
+  const index = customers.findIndex((c) => c.id === id);
+  if (index < 0) return undefined;
+  customers[index] = updated;
+  await writeJson(FILE, customers);
+  return updated;
+}
+
 export async function updateCustomerByEmail(
   email: string,
-  patch: Partial<{
-    name: string;
-    passwordHash: string;
-    googleId: string;
-    lastLoginAt: string;
-    resetTokenHash: string | undefined;
-    resetTokenExpiresAt: string | undefined;
-  }>
+  patch: CustomerPatch
 ): Promise<CustomerWithReset | undefined> {
   const normalized = email.trim().toLowerCase();
   const current = await getCustomerByEmail(normalized);
@@ -128,11 +184,7 @@ export async function updateCustomerByEmail(
 
   const updated: CustomerWithReset = { ...current, ...patch };
   if (isSupabaseConfigured()) {
-    const { error } = await getSupabaseAdmin()
-      .from("customers")
-      .update(customerToRow(updated))
-      .eq("email", normalized);
-    if (error) throw error;
+    await sbUpdateCustomer({ column: "email", value: normalized }, updated);
     return updated;
   }
 

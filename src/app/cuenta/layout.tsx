@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 const nav = [
-  { href: "/cuenta", label: "Mis reservas", exact: true },
+  { href: "/cuenta", label: "Mi perfil", exact: true },
 ];
 
 export default function CuentaLayout({

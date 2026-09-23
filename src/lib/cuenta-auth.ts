@@ -29,12 +29,14 @@ function stripCustomer(customer: {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string;
   createdAt: string;
 }) {
   return {
     id: customer.id,
     name: customer.name,
     email: customer.email,
+    avatarUrl: customer.avatarUrl,
     createdAt: customer.createdAt,
   };
 }

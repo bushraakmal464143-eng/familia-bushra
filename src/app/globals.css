@@ -108,3 +108,69 @@ body {
   text-transform: capitalize;
   color: #111827;
 }
+
+/* Admin bookings calendar */
+.admin-bookings-calendar.rdp-root {
+  --rdp-accent-color: #ea580c;
+  --rdp-accent-background-color: #ffedd5;
+  --rdp-day-height: 44px;
+  --rdp-day-width: 44px;
+  --rdp-day_button-height: 42px;
+  --rdp-day_button-width: 42px;
+  font-size: 0.875rem;
+  color: #1a1a1a;
+}
+
+.admin-bookings-calendar .rdp-month_grid {
+  display: table;
+  width: 100%;
+}
+
+.admin-bookings-calendar .rdp-weekdays,
+.admin-bookings-calendar .rdp-week {
+  display: table-row;
+}
+
+.admin-bookings-calendar .rdp-weekday,
+.admin-bookings-calendar .rdp-day {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 2px;
+  text-align: center;
+}
+
+.admin-bookings-calendar .rdp-day_button {
+  margin-inline: auto;
+  border-radius: 9999px;
+}
+
+.admin-bookings-calendar .admin-cal-booked:not([data-selected="true"]) .rdp-day_button {
+  background: #ffedd5;
+  color: #c2410c;
+  font-weight: 700;
+}
+
+.admin-bookings-calendar .admin-cal-booked:not([data-selected="true"]) .rdp-day_button:hover {
+  background: #fed7aa;
+}
+
+/* Skeleton shimmer */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #ece7df 0%,
+    #f7f4ef 40%,
+    #ece7df 80%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.35s ease-in-out infinite;
+}
