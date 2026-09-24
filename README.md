@@ -70,12 +70,15 @@ In **Vercel → Project → Settings → Environment Variables**, add for **Prod
 | `ADMIN_EMAIL` | Your admin login email |
 | `ADMIN_PASSWORD` | Your admin password |
 | `ADMIN_SECRET` | Long random string for signing cookies |
+| `STRIPE_SECRET_KEY` | Stripe → Developers → API keys → Secret key (`sk_test_…` for test) |
 
 Optional:
 
 | Name | Purpose |
 |------|---------|
 | `NEXT_PUBLIC_SITE_URL` | Your live URL, e.g. `https://your-app.vercel.app` |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (`pk_test_…`) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret (`whsec_…`) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | Google login |
 | `SMTP_*` | Contact form email |
 

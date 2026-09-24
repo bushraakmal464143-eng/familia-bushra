@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import PaymentCheckout from "@/components/cuenta/PaymentCheckout";
 import { getBookingById } from "@/lib/bookings-store";
 import { getOfferById } from "@/lib/offers-store";
 import { getSessionSubject } from "@/lib/role-session";
+import { isStripeConfigured } from "@/lib/stripe";
 import { formatBookingStatus } from "@/lib/stats";
 
 type PagoPageProps = {
@@ -26,6 +28,7 @@ export default async function PagoPage({ searchParams }: PagoPageProps) {
   if (!booking || booking.customerId !== customerId) notFound();
 
   const offer = await getOfferById(booking.offerId);
+  const stripeReady = isStripeConfigured();
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
@@ -53,15 +56,31 @@ export default async function PagoPage({ searchParams }: PagoPageProps) {
           )}
         </div>
 
-        <p className="mt-4 text-sm text-gray-500">
-          Simulación de pago — conecta aquí Stripe o PayPal en producción.
-        </p>
+        {stripeReady ? (
+          <p className="mt-4 text-sm text-gray-500">
+            Pago seguro con Stripe Checkout (test mode). Tras pagar, verás el
+            cobro en tu panel de Stripe → Payments.
+          </p>
+        ) : (
+          <p className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Stripe no está configurado. Añade{" "}
+            <code className="font-mono text-xs">STRIPE_SECRET_KEY</code> (sk_test_…)
+            en <code className="font-mono text-xs">.env.local</code> y reinicia el
+            servidor.
+          </p>
+        )}
 
-        <PaymentCheckout
-          bookingId={booking.id}
-          totalAmount={booking.totalAmount}
-          status={booking.status}
-        />
+        <Suspense
+          fallback={
+            <p className="mt-8 text-sm text-gray-500">Cargando pago…</p>
+          }
+        >
+          <PaymentCheckout
+            bookingId={booking.id}
+            totalAmount={booking.totalAmount}
+            status={booking.status}
+          />
+        </Suspense>
       </div>
     </section>
   );

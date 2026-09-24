@@ -1,22 +1,27 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function PayBookingButton({ bookingId }: { bookingId: string }) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handlePay() {
     setLoading(true);
-    const res = await fetch(`/api/cuenta/bookings/${bookingId}/pay`, {
-      method: "POST",
-    });
-    setLoading(false);
-    if (res.ok) {
-      router.refresh();
-    } else {
-      alert("No se pudo procesar el pago");
+    try {
+      const res = await fetch(`/api/cuenta/bookings/${bookingId}/pay`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        alert(data.error ?? "No se pudo iniciar el pago");
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      alert("No se pudo iniciar el pago");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -27,7 +32,7 @@ export default function PayBookingButton({ bookingId }: { bookingId: string }) {
       disabled={loading}
       className="rounded-md bg-brand-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-60"
     >
-      {loading ? "Procesando…" : "Pagar ahora"}
+      {loading ? "Redirigiendo…" : "Pagar con Stripe"}
     </button>
   );
 }
