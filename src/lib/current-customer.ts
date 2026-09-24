@@ -9,16 +9,21 @@ export type CurrentCustomer = {
 };
 
 export async function getCurrentCustomer(): Promise<CurrentCustomer | null> {
-  const id = await getSessionSubject("customer");
-  if (!id) return null;
+  try {
+    const id = await getSessionSubject("customer");
+    if (!id) return null;
 
-  const customer = await getCustomerById(id);
-  if (!customer) return null;
+    const customer = await getCustomerById(id);
+    if (!customer) return null;
 
-  return {
-    id: customer.id,
-    name: customer.name,
-    email: customer.email,
-    avatarUrl: customer.avatarUrl,
-  };
+    return {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      avatarUrl: customer.avatarUrl,
+    };
+  } catch (err) {
+    console.error("[current-customer] failed:", err);
+    return null;
+  }
 }
